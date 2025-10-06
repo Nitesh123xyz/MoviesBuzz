@@ -4,7 +4,9 @@ import { Search, TextAlignStart } from 'lucide-react-native';
 import ImageCarousel from '../components/ImageCarousel';
 import MovieList from '../components/MovieList';
 import MoviesApi from '../utils/dummy';
+import { useNavigation } from '@react-navigation/native';
 const HomeScreen = () => {
+  const navigation = useNavigation();
   return (
     <>
       <StatusBar barStyle="light-content" className="bg-neutral-800" />
@@ -13,7 +15,11 @@ const HomeScreen = () => {
           <View className="flex-row items-center justify-between mx-3 py-1">
             <TextAlignStart color="white" className="bg-white" />
             <Text className="text-2xl text-white">GamesBuzz</Text>
-            <Search color="white" className="bg-white" />
+            <Search
+              onPress={() => navigation.navigate('Search')}
+              color="white"
+              className="bg-white"
+            />
           </View>
         </View>
         <ScrollView

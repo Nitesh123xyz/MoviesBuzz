@@ -1,12 +1,4 @@
-import {
-  FlatList,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 
 const Cast = ({ navigation }) => {
@@ -111,5 +103,3 @@ const Cast = ({ navigation }) => {
 };
 
 export default Cast;
-
-const styles = StyleSheet.create({});
