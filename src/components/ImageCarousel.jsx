@@ -8,15 +8,18 @@ import {
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { useNavigation } from '@react-navigation/native';
-
+import { useGetAllTrendingMoviesQuery } from '../features/movies';
+import { IMAGE_BASE_URL } from '@env';
 const { width: screenWidth } = Dimensions.get('window');
 const posterRatio = 1.5;
 const carouselHeight = Math.round(screenWidth * posterRatio);
 
-const ImageCarousel = ({ MoviesApi }) => {
+const ImageCarousel = () => {
+  const { data } = useGetAllTrendingMoviesQuery();
+  const { results } = data || {};
   const navigation = useNavigation();
   const handleClick = item => {
-    navigation.navigate('MovieDetails', { movie: item });
+    navigation.navigate('MovieDetails', { movieId: item?.id });
   };
 
   return (
@@ -30,7 +33,7 @@ const ImageCarousel = ({ MoviesApi }) => {
             loop
             width={screenWidth}
             height={carouselHeight}
-            data={MoviesApi}
+            data={results}
             defaultIndex={1}
             pagingEnabled
             mode="parallax"
@@ -55,7 +58,7 @@ const MovieCard = ({ item, handleClick }) => {
     <TouchableWithoutFeedback onPress={() => handleClick(item)}>
       <View style={{ width: screenWidth, height: carouselHeight }}>
         <Image
-          source={{ uri: item.url }}
+          source={{ uri: `${IMAGE_BASE_URL}${item.poster_path}` }}
           className="w-full h-full rounded-2xl"
           resizeMode="cover"
         />

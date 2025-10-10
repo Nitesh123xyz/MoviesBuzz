@@ -1,48 +1,41 @@
-import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, Text, View } from 'react-native';
 import React from 'react';
 import { IMAGE_BASE_URL } from '@env';
-const Cast = ({ navigation, Casts }) => {
-  const { cast: castMembers } = Casts || {};
-
+const Circle = ({ Information }) => {
   return (
     <>
       <Text className="text-white text-lg mx-4 mb-2">Top Cast</Text>
       <ScrollView
-        data={castMembers}
+        data={Information}
         keyExtractor={item => item.id.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 1, paddingBottom: 20 }}
         decelerationRate={0.8}
       >
-        {castMembers?.map(item => (
-          <TouchableOpacity
-            key={item.id}
-            onPress={() => navigation.navigate('Person', { castId: item.id })}
-          >
+        {Information?.map(item => (
+          <View key={item.id}>
             <View className="flex-col items-center mx-2">
               <View className="border-2 border-gray-400 rounded-full p-0.5">
                 <Image
                   source={{
-                    uri: !!item?.profile_path
-                      ? `${IMAGE_BASE_URL}${item?.profile_path}`
-                      : 'https://static.vecteezy.com/system/resources/previews/030/504/837/large_2x/avatar-account-flat-isolated-on-transparent-background-for-graphic-and-web-design-default-social-media-profile-photo-symbol-profile-and-people-silhouette-user-icon-vector.jpg',
+                    uri: `${IMAGE_BASE_URL}${item?.logo_path}`,
                   }}
-                  className="w-20 h-20 rounded-full"
+                  className="w-30 h-20 rounded-full"
                 />
               </View>
               <Text
                 numberOfLines={2}
                 className="text-white text-center mt-2 text-xs w-16 truncate"
               >
-                {item.name}
+                {item?.name}
               </Text>
             </View>
-          </TouchableOpacity>
+          </View>
         ))}
       </ScrollView>
     </>
   );
 };
 
-export default Cast;
+export default Circle;

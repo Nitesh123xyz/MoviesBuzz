@@ -12,16 +12,43 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Cast from '../components/Cast';
 import MovieList from '../components/MovieList';
+import { IMAGE_BASE_URL } from '@env';
+import {
+  useGetCastQuery,
+  useGetMovieDetailsQuery,
+  useGetSimilarMoviesQuery,
+} from '../features/movies';
+import Circle from '../components/Circle';
+import MainLoader from '../components/MainLoader';
+import CastSkeleton from '../components/loaders/CastSkeleton';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const DetailsScreen = ({ route, navigation }) => {
-  const { movie } = route.params;
+  const { movieId } = route.params;
   const [isFavorite, setIsFavorite] = useState(false);
+  let PosterImage = '';
+  // -----------------------------------------
+
+  const { data: MoviesDetails, isLoading } = useGetMovieDetailsQuery(movieId);
+  const { data: Casts, isLoading: CastLoading } = useGetCastQuery(movieId);
+  const { data: SimilarMovies } = useGetSimilarMoviesQuery(movieId);
+
+  console.log(MoviesDetails);
+  if (isLoading) {
+    return <MainLoader />;
+  }
+  if (!!MoviesDetails?.backdrop_path) {
+    PosterImage = `${IMAGE_BASE_URL}${MoviesDetails?.backdrop_path}`;
+  } else if (!!MoviesDetails?.poster_path) {
+    PosterImage = `${IMAGE_BASE_URL}${MoviesDetails?.poster_path}`;
+  } else {
+    PosterImage =
+      'https://img.freepik.com/free-vector/defective-product-abstract-concept-vector-illustration-manufacturing-design-defect-broken-equipment-computer-upgrade-seller-warranty-lawsuit-risk-company-responsibility-abstract-metaphor_335657-6110.jpg';
+  }
 
   return (
     <>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 20 }}
         className="flex-1 bg-neutral-900"
         showsVerticalScrollIndicator={false}
       >
@@ -46,12 +73,14 @@ const DetailsScreen = ({ route, navigation }) => {
           </View>
 
           {/* Poster with Gradient */}
-          <View>
+          <View className="mb-20">
             <ImageBackground
-              source={{ uri: movie.url }}
+              source={{
+                uri: PosterImage,
+              }}
               style={{
                 width: screenWidth,
-                height: screenHeight * 0.55,
+                height: screenHeight * 0.3,
                 justifyContent: 'flex-end',
               }}
               resizeMode="cover"
@@ -71,41 +100,72 @@ const DetailsScreen = ({ route, navigation }) => {
                   ...StyleSheet.absoluteFillObject,
                 }}
               />
-
-              <View className="px-4">
-                <Text className="text-2xl font-bold text-white">
-                  {movie.title}
-                </Text>
-              </View>
             </ImageBackground>
           </View>
         </View>
-
         {/* Movie Info */}
-        <View className="px-4 py-2">
-          {/* <Text className="text-base text-neutral-400 mb-2">
-            Source: {movie.source}
-          </Text> */}
-          <Text className="text-base text-neutral-400 mb-2">
-            Release . 2020 . 170 min
+        <View className="px-4">
+          <Text className="text-2xl font-bold text-white">
+            {MoviesDetails?.title}
           </Text>
-          <Text className="text-base text-neutral-400 mb-2">
-            Action . Thrill . Comedy
+
+          <Text className="text-base text-neutral-400 my-1">
+            <Text className="text-white">Adult : </Text>
+            {MoviesDetails?.adult ? 'Yes' : 'No'}
           </Text>
-          <Text className="text-base leading-6 text-neutral-400">
-            {movie.description}
+          <Text className="text-base text-neutral-400 mb-1">
+            <Text className="text-white">Original_language</Text> :{' '}
+            {MoviesDetails?.original_language}
+          </Text>
+          <Text className="text-neutral-400">
+            <Text className="text-white">Release : </Text>
+            {MoviesDetails?.release_date}
+          </Text>
+          <Text className="text-neutral-400">
+            <Text className="text-white">Runtime : </Text>
+            {MoviesDetails?.runtime} min
+          </Text>
+          <View className="flex-row space-x-2 my-1">
+            <Text className="text-white">Genres : </Text>
+            <Text className="text-base text-neutral-400 text-wrap">
+              {MoviesDetails?.genres?.map(info => info?.name).join(', ')}
+            </Text>
+          </View>
+          <Text className="text-base text-neutral-400 my-1">
+            <Text className="text-white">Status</Text> : {MoviesDetails?.status}
+          </Text>
+          <Text className="text-base text-neutral-400 my-1">
+            <Text className="text-white">Revenue</Text> :{' '}
+            {MoviesDetails?.revenue}
+          </Text>
+          <Text className="text-base text-neutral-400 my-1">
+            <Text className="text-white">Languages</Text> :{' '}
+            {MoviesDetails?.spoken_languages
+              ?.map(info => info?.name)
+              .join(', ')}
+          </Text>
+          <Text numberOfLines={8} className="text-base text-neutral-400 my-1">
+            <Text className="text-white">Overview</Text> :{' '}
+            {MoviesDetails?.overview}
           </Text>
         </View>
+        {CastLoading ? (
+          <CastSkeleton />
+        ) : (
+          <Cast navigation={navigation} Casts={Casts} />
+        )}
 
-        {/* Cast Component Placeholder */}
-        <Cast navigation={navigation} />
+        {/* <View>
+          <Circle Information={MoviesDetails?.production_companies} />
 
-        {/* similar movies */}
-        <MovieList
-          title="Similar Movies"
-          MoviesApi={MoviesApi}
-          hideSeeAll={true}
-        />
+          {SimilarMovies?.total_results > 0 && (
+            <MovieList
+              title="Similar Movies"
+              MoviesApi={SimilarMovies}
+              hideSeeAll={true}
+            />
+          )}
+        </View> */}
       </ScrollView>
     </>
   );

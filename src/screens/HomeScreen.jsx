@@ -5,8 +5,15 @@ import ImageCarousel from '../components/ImageCarousel';
 import MovieList from '../components/MovieList';
 import MoviesApi from '../utils/dummy';
 import { useNavigation } from '@react-navigation/native';
+import {
+  useGetLatestMoviesQuery,
+  useGetUpcomingMoviesQuery,
+} from '../features/movies';
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const { data: latest } = useGetLatestMoviesQuery();
+  const { data: upcoming } = useGetUpcomingMoviesQuery();
+
   return (
     <>
       <StatusBar barStyle="light-content" className="bg-neutral-800" />
@@ -30,9 +37,9 @@ const HomeScreen = () => {
           <ImageCarousel MoviesApi={MoviesApi} />
           <View className="mt-[-3rem]">
             {/* Upcoming Carousel */}
-            <MovieList title="Upcoming" MoviesApi={MoviesApi} />
+            <MovieList title="Upcoming" MoviesApi={upcoming} />
             {/* Latest Carousel */}
-            <MovieList title="Latest" MoviesApi={MoviesApi} />
+            <MovieList title="Latest" MoviesApi={latest} />
           </View>
         </ScrollView>
       </View>

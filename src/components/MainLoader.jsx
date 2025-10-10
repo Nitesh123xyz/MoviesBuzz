@@ -7,9 +7,11 @@ const MainLoader = () => {
       className="fixed inset-0 justify-center items-center z-[999]"
       pointerEvents="auto"
     >
-      <View className="p-1.5 bg-white/15 backdrop-blur-lg rounded-full shadow-lg">
-        <ActivityIndicator size={30} color="#fff" />
-      </View>
+      <ActivityIndicator
+        size={60}
+        className="text-yellow-400"
+        animating={true}
+      />
     </View>
   );
 };

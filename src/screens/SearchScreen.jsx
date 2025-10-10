@@ -86,10 +86,7 @@ const SearchScreen = () => {
         ListFooterComponent={loading ? <MainLoader /> : null}
         ListEmptyComponent={() => (
           <View className="my-3 items-center justify-center">
-            <Image
-              source={require('../assets/images/movie.png')}
-              className="w-full h-64 rounded-lg"
-            />
+            <Text className="text-white text-sm">No results found</Text>
           </View>
         )}
       />
