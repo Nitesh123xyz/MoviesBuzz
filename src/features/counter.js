@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = { counter: 0 };
+const initialState = { counter: 0, pageNO: 1 };
 
 const counterSlice = createSlice({
   name: 'counter',
@@ -9,8 +9,11 @@ const counterSlice = createSlice({
     CounterIncrement(state) {
       state.counter += 1;
     },
+    SeeAllPagination(state, action) {
+      state.pageNO += action.payload;
+    },
   },
 });
 
-export const { CounterIncrement } = counterSlice.actions;
+export const { CounterIncrement, SeeAllPagination } = counterSlice.actions;
 export default counterSlice.reducer;

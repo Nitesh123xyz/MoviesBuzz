@@ -1,18 +1,28 @@
-import { ScrollView, StatusBar, Text, View } from 'react-native';
-import React from 'react';
+import {
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, { useCallback } from 'react';
 import { Search, TextAlignStart } from 'lucide-react-native';
 import ImageCarousel from '../components/ImageCarousel';
 import MovieList from '../components/MovieList';
-import MoviesApi from '../utils/dummy';
-import { useNavigation } from '@react-navigation/native';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 import {
   useGetLatestMoviesQuery,
   useGetUpcomingMoviesQuery,
 } from '../features/movies';
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const { data: latest } = useGetLatestMoviesQuery();
-  const { data: upcoming } = useGetUpcomingMoviesQuery();
+  const { data: latest, isLoading: latestLoading } = useGetLatestMoviesQuery();
+  const { data: upcoming, isLoading: upcomingLoading } =
+    useGetUpcomingMoviesQuery();
+
+  const toggleDrawer = useCallback(() => {
+    navigation.getParent()?.dispatch(DrawerActions.toggleDrawer());
+  }, [navigation]);
 
   return (
     <>
@@ -20,7 +30,9 @@ const HomeScreen = () => {
       <View className="flex-1 bg-neutral-800">
         <View className="px-1">
           <View className="flex-row items-center justify-between mx-3 py-1">
-            <TextAlignStart color="white" className="bg-white" />
+            <TouchableOpacity onPress={() => toggleDrawer()}>
+              <TextAlignStart color="white" />
+            </TouchableOpacity>
             <Text className="text-2xl text-white">GamesBuzz</Text>
             <Search
               onPress={() => navigation.navigate('Search')}
@@ -33,13 +45,20 @@ const HomeScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
         >
-          {/* Trending Carousel */}
-          <ImageCarousel MoviesApi={MoviesApi} />
+          <ImageCarousel />
+
           <View className="mt-[-3rem]">
-            {/* Upcoming Carousel */}
-            <MovieList title="Upcoming" MoviesApi={upcoming} />
-            {/* Latest Carousel */}
-            <MovieList title="Latest" MoviesApi={latest} />
+            <MovieList
+              title="Upcoming"
+              MoviesApi={upcoming}
+              loader={upcomingLoading}
+            />
+
+            <MovieList
+              title="Top Rated"
+              MoviesApi={latest}
+              loader={latestLoading}
+            />
           </View>
         </ScrollView>
       </View>

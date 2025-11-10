@@ -1,5 +1,5 @@
 import { X } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,91 +7,220 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  ActivityIndicator,
+  StatusBar,
 } from 'react-native';
-import MoviesApi from '../utils/dummy';
-import MainLoader from '../components/MainLoader';
-const SearchScreen = () => {
-  const [query, setQuery] = useState('');
-  const [data, setData] = useState(MoviesApi);
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      const q = query.trim().toLowerCase();
-      const filtered = q
-        ? MoviesApi.filter(m => m.title.toLowerCase().includes(q))
-        : MoviesApi;
+import { useGetAllSearchMoviesQuery } from '../features/movies';
+import { IMAGE_BASE_URL } from '@env';
+import { useNavigation } from '@react-navigation/native';
+import { BackUpPosterImage } from '../utils/Backup';
 
-      setData(filtered);
-      setLoading(false);
-    }, 350);
+export default function SearchScreen() {
+  const [q, setQ] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [displayData, setDisplayData] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isPaginating, setIsPaginating] = useState(false);
+  const navigation = useNavigation();
 
-    return () => clearTimeout(timer);
-  }, [query]);
+  // -----------------------------------------------------
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity activeOpacity={0.9} className="flex-1">
-      <Image source={{ uri: item.url }} className="w-full h-64 rounded-lg" />
-      <View>
-        <Text
-          numberOfLines={1}
-          className="text-white text-sm font-semibold mt-1"
-        >
-          {item.title}
-        </Text>
-        <Text className="text-gray-400 text-xs">{item.releaseDate}</Text>
-      </View>
-    </TouchableOpacity>
+  const { data, isLoading, isFetching } = useGetAllSearchMoviesQuery(
+    { query: searchQuery, page },
+    { skip: !searchQuery },
   );
+
+  const onPressSearch = () => {
+    const trimmed = q.trim();
+
+    if (!trimmed) {
+      setSearchQuery('');
+      setDisplayData([]);
+      setPage(1);
+      setTotalPages(1);
+      return;
+    }
+
+    setSearchQuery(trimmed);
+    setPage(1);
+    setDisplayData([]);
+    setTotalPages(1);
+  };
+
+  // keyboard submit
+  const onSubmitEditing = () => onPressSearch();
+
+  // Helper: dedupe by id and return merged array preserving order
+  const mergeUniqueById = (base = [], additions = []) => {
+    const seen = new Set(base.map(i => i?.id));
+    const merged = [...base];
+    for (const it of additions) {
+      if (it?.id == null) {
+        const fallback = `${it?.title ?? ''}::${it?.release_date ?? ''}`;
+        if (!seen.has(fallback)) {
+          seen.add(fallback);
+          merged.push(it);
+        }
+      } else if (!seen.has(it.id)) {
+        seen.add(it.id);
+        merged.push(it);
+      }
+    }
+    return merged;
+  };
+
+  // react to API data changes
+  useEffect(() => {
+    if (!data?.results) return;
+
+    // total_pages if provided by API
+    if (typeof data.total_pages === 'number') {
+      setTotalPages(data.total_pages);
+    }
+
+    if (page === 1) {
+      const unique = mergeUniqueById([], data.results || []);
+      setDisplayData(unique);
+    } else {
+      setDisplayData(prev => mergeUniqueById(prev, data.results || []));
+    }
+  }, [data, page]);
+
+  // Load next page if available
+  const loadMore = () => {
+    if (!searchQuery) return;
+    if (isFetching || isLoading || isPaginating) return;
+    if (page >= totalPages) return;
+
+    setIsPaginating(true);
+    setPage(prev => prev + 1);
+
+    // small UX delay if you prefer (optional)
+    setTimeout(() => {
+      setIsPaginating(false);
+    }, 500);
+  };
+
+  const keyExtractor = (item, index) => {
+    if (item?.id != null) {
+      return `${item.id}-${item.original_language ?? 'x'}`;
+    }
+
+    return `no-id-${item?.title ?? 'untitled'}-${
+      item?.release_date ?? ''
+    }-${index}`;
+  };
+
+  const renderItem = useCallback(({ item }) => {
+    const poster = item?.poster_path
+      ? `${IMAGE_BASE_URL}${item.poster_path}`
+      : BackUpPosterImage;
+    return (
+      <TouchableOpacity
+        key={keyExtractor(item?.id)}
+        style={{ flexDirection: 'row', padding: 12, alignItems: 'flex-start' }}
+        onPress={() =>
+          navigation.navigate('MovieDetails', { movieId: item.id })
+        }
+      >
+        <View
+          style={{
+            width: 100,
+            height: 140,
+          }}
+          className="rounded-lg overflow-hidden"
+        >
+          <Image
+            source={{ uri: poster }}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="cover"
+          />
+          <View className="absolute left-[6px] top-[6px] bg-sky-500 px-[6px] py-[2px] rounded-[4px]">
+            <Text className="text-white text-[11px] font-bold">
+              {item?.original_language?.toUpperCase() || 'HI'}
+            </Text>
+          </View>
+        </View>
+        <View className="flex-1 ml-3 justify-between">
+          <View>
+            <Text className="text-white text-[16px] font-bold">
+              <Text className="text-red-500">
+                {item?.title?.slice(
+                  0,
+                  item?.title?.indexOf(' ') > -1 ? item.title.indexOf(' ') : 0,
+                ) || ''}
+              </Text>
+              {item?.title?.replace(/^(\S+\s?)/, '') || item?.title}
+            </Text>
+
+            <Text className="text-[#9CA3AF] mt-1">{item?.release_date}</Text>
+            <Text className="text-[#9CA3AF] mt-1" numberOfLines={2}>
+              {item?.overview}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }, []);
 
   return (
-    <View style={{ marginTop: 20, paddingHorizontal: 16 }}>
-      <Text className="text-2xl text-center text-white">Search</Text>
+    <>
+      <StatusBar barStyle="light-content" className="bg-neutral-900" />
+      <View className="p-5 bg-neutral-900">
+        <View className="flex-row items-center rounded-lg bg-neutral-900 px-1 border border-gray-600">
+          <TextInput
+            value={q}
+            onChangeText={setQ}
+            placeholder="Search..."
+            placeholderTextColor="#94a3b8"
+            className="flex-1 text-white"
+            returnKeyType="search"
+            onSubmitEditing={onSubmitEditing}
+          />
+          {q && (
+            <TouchableOpacity
+              onPress={() => {
+                setQ('');
+                setSearchQuery('');
+                setDisplayData([]);
+                setPage(1);
+              }}
+              className="p-1.5"
+            >
+              <X color="white" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
 
-      <View className="flex-row items-center mt-4 border rounded-full border-gray-400 px-2 py-1">
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          className="flex-1 text-base text-white"
-          placeholder="Search..."
-          placeholderTextColor="#9CA3AF"
+      <View className="flex-1 bg-neutral-900">
+        <FlatList
+          style={{ flex: 1 }}
+          data={displayData}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isPaginating || isFetching || isLoading ? (
+              <View className="pb-20">
+                <ActivityIndicator size={30} color="#fff" />
+              </View>
+            ) : null
+          }
+          ListEmptyComponent={
+            !isLoading && !isFetching ? (
+              <View className="pt-2 items-center">
+                <Text className="text-white">No results</Text>
+              </View>
+            ) : null
+          }
+          contentContainerStyle={{ paddingBottom: 24, flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          removeClippedSubviews={false}
         />
-
-        <TouchableOpacity
-          onPress={() => setQuery('')}
-          className={`rounded-full p-2 bg-neutral-500 ${
-            query.length ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <X color="white" />
-        </TouchableOpacity>
       </View>
-
-      <View className="flex-row mt-2">
-        <Text className="text-white text-sm">Results</Text>
-        <Text className="text-white text-sm ml-1">({data.length})</Text>
-      </View>
-
-      <FlatList
-        data={data}
-        keyExtractor={item => item.id.toString()}
-        renderItem={renderItem}
-        numColumns={2}
-        columnWrapperStyle={{
-          justifyContent: 'space-between',
-          gap: 10,
-        }}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingVertical: 15 }}
-        ListFooterComponent={loading ? <MainLoader /> : null}
-        ListEmptyComponent={() => (
-          <View className="my-3 items-center justify-center">
-            <Text className="text-white text-sm">No results found</Text>
-          </View>
-        )}
-      />
-    </View>
+    </>
   );
-};
-
-export default SearchScreen;
+}

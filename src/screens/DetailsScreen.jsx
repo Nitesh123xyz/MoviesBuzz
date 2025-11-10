@@ -11,29 +11,28 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Cast from '../components/Cast';
-import MovieList from '../components/MovieList';
 import { IMAGE_BASE_URL } from '@env';
+import { BackUpPosterImage } from '../utils/Backup';
 import {
   useGetCastQuery,
   useGetMovieDetailsQuery,
   useGetSimilarMoviesQuery,
 } from '../features/movies';
-import Circle from '../components/Circle';
-import MainLoader from '../components/MainLoader';
-import CastSkeleton from '../components/loaders/CastSkeleton';
+import MainLoader from '../components/loaders/MainLoader';
+import MovieList from '../components/MovieList';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const DetailsScreen = ({ route, navigation }) => {
-  const { movieId } = route.params;
+  const { movieId } = route?.params;
   const [isFavorite, setIsFavorite] = useState(false);
   let PosterImage = '';
   // -----------------------------------------
 
   const { data: MoviesDetails, isLoading } = useGetMovieDetailsQuery(movieId);
-  const { data: Casts, isLoading: CastLoading } = useGetCastQuery(movieId);
-  const { data: SimilarMovies } = useGetSimilarMoviesQuery(movieId);
+  const { data: Casts, isLoading: CastsLoading } = useGetCastQuery(movieId);
+  const { data: SimilarMovies, isLoading: SimilarMoviesLoading } =
+    useGetSimilarMoviesQuery(movieId);
 
-  console.log(MoviesDetails);
   if (isLoading) {
     return <MainLoader />;
   }
@@ -42,8 +41,7 @@ const DetailsScreen = ({ route, navigation }) => {
   } else if (!!MoviesDetails?.poster_path) {
     PosterImage = `${IMAGE_BASE_URL}${MoviesDetails?.poster_path}`;
   } else {
-    PosterImage =
-      'https://img.freepik.com/free-vector/defective-product-abstract-concept-vector-illustration-manufacturing-design-defect-broken-equipment-computer-upgrade-seller-warranty-lawsuit-risk-company-responsibility-abstract-metaphor_335657-6110.jpg';
+    PosterImage = BackUpPosterImage;
   }
 
   return (
@@ -149,23 +147,21 @@ const DetailsScreen = ({ route, navigation }) => {
             {MoviesDetails?.overview}
           </Text>
         </View>
-        {CastLoading ? (
-          <CastSkeleton />
-        ) : (
-          <Cast navigation={navigation} Casts={Casts} />
+
+        {Casts?.cast.length > 0 && (
+          <Cast navigation={navigation} Casts={Casts} loader={CastsLoading} />
         )}
 
-        {/* <View>
-          <Circle Information={MoviesDetails?.production_companies} />
-
+        <View>
           {SimilarMovies?.total_results > 0 && (
             <MovieList
               title="Similar Movies"
               MoviesApi={SimilarMovies}
+              loader={SimilarMoviesLoading}
               hideSeeAll={true}
             />
           )}
-        </View> */}
+        </View>
       </ScrollView>
     </>
   );

@@ -1,8 +1,20 @@
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { IMAGE_BASE_URL } from '@env';
-const Cast = ({ navigation, Casts }) => {
+const Cast = ({ navigation, Casts, loader }) => {
   const { cast: castMembers } = Casts || {};
+
+  if (loader) {
+    return (
+      <>
+        <ActivityIndicator
+          size="large"
+          color="white"
+          style={{ marginVertical: 20 }}
+        />
+      </>
+    );
+  }
 
   return (
     <>

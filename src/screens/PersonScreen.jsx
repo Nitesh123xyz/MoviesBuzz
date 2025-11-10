@@ -2,10 +2,14 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import { ChevronLeft, Heart } from 'lucide-react-native';
 import { Shadow } from 'react-native-shadow-2';
-import MovieList from '../components/MovieList';
-import { useGetCastDetailsQuery } from '../features/movies';
+import {
+  useGetCastDetailsQuery,
+  useGetCastRelatedMoviesQuery,
+} from '../features/movies';
 import { IMAGE_BASE_URL } from '@env';
 import ProfileDetailsSkeleton from '../components/loaders/ProfileDetailsSkeleton';
+import { DateFormatter } from '../utils/Formatter';
+import MovieList from '../components/MovieList';
 const PersonScreen = ({ route, navigation }) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -13,6 +17,13 @@ const PersonScreen = ({ route, navigation }) => {
 
   const { castId } = route.params;
   const { data: CastDetails, isLoading } = useGetCastDetailsQuery(castId);
+  const { data: CastRelatedMovie, isLoading: CastRelatedMovieLoading } =
+    useGetCastRelatedMoviesQuery(castId);
+  const { cast: castMembers } = CastRelatedMovie || {};
+
+  // console.log(CastDetails);
+  console.log(CastRelatedMovie);
+  console.log(castId);
 
   if (isLoading) return <ProfileDetailsSkeleton />;
 
@@ -108,7 +119,7 @@ const PersonScreen = ({ route, navigation }) => {
                 Birthday
               </Text>
               <Text className="text-neutral-300 text-center mt-1 text-xs">
-                {CastDetails?.birthday}
+                {DateFormatter(CastDetails?.birthday)}
               </Text>
             </View>
             <View className="border-r-[1px] border-r-neutral-400 px-2 items-center">
@@ -148,7 +159,12 @@ const PersonScreen = ({ route, navigation }) => {
           )}
         </View>
         {/* Person Movies */}
-        {/* <MovieList title="Movies" hideSeeAll={true} MoviesApi={MoviesApi} /> */}
+        <MovieList
+          title="Movies"
+          MoviesApi={CastRelatedMovie}
+          loader={CastRelatedMovieLoading}
+          hideSeeAll={true}
+        />
       </>
     </ScrollView>
   );

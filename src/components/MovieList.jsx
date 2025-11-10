@@ -1,22 +1,146 @@
-import { useNavigation } from '@react-navigation/native';
+import React, { memo, useCallback } from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
-  Image,
-  ScrollView,
   Text,
   TouchableOpacity,
   View,
+  FlatList,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import FastImage from 'react-native-fast-image';
 import { IMAGE_BASE_URL } from '@env';
+import Rating from './Rating';
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-const MovieList = ({ title, MoviesApi, hideSeeAll = false }) => {
-  const { results } = MoviesApi || {};
+/**
+ * MovieCard: isolated component for each item.
+ * It owns its own loading/error state (hooks are local and stable).
+ */
+const MovieCard = memo(function MovieCard({ item, onPress }) {
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(false);
+
+  const imageUri = `${IMAGE_BASE_URL}${
+    item?.poster_path || item?.backdrop_path
+  }`;
+
+  const onLoadStart = useCallback(() => {
+    setLoading(true);
+    setError(false);
+  }, []);
+
+  const onLoadEnd = useCallback(() => {
+    setLoading(false);
+  }, []);
+
+  const onError = useCallback(() => {
+    setLoading(false);
+    setError(true);
+  }, []);
+
+  // local fallback image — update path as needed
+  const fallbackSource = require('../assets/images/logo.png');
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() => onPress(item?.id)}
+      style={{ marginHorizontal: 8 }}
+    >
+      <View style={{ width: screenWidth / 2 }}>
+        <FastImage
+          source={
+            error
+              ? fallbackSource
+              : {
+                  uri: imageUri,
+                  priority: FastImage.priority.high,
+                  cache: FastImage.cacheControl.immutable,
+                }
+          }
+          style={{
+            width: screenWidth / 2,
+            height: screenHeight / 2.5,
+            borderRadius: 8,
+            overflow: 'hidden',
+            backgroundColor: '#111827',
+          }}
+          resizeMode={FastImage.resizeMode.cover}
+          onLoadStart={onLoadStart}
+          onLoad={onLoadEnd}
+          onError={onError}
+        />
+
+        {loading && (
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              left: 8,
+              top: 8,
+              width: screenWidth / 2 - 16,
+              height: screenHeight / 2.5,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <ActivityIndicator size="large" color="white" />
+          </View>
+        )}
+
+        <Rating RatingPer={item?.vote_average} Size={15} />
+
+        <Text
+          numberOfLines={1}
+          style={{ color: '#cbd5e1', marginTop: 8, width: screenWidth / 2 }}
+        >
+          {item?.title || item?.name}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+});
+
+const MovieList = ({
+  title,
+  MoviesApi,
+  loader = false,
+  hideSeeAll = false,
+}) => {
+  const { results, cast } = MoviesApi || {};
+  const Results = results || cast || [];
   const navigation = useNavigation();
+
+  if (loader) {
+    return (
+      <ActivityIndicator
+        size="large"
+        color="white"
+        style={{ marginVertical: 20 }}
+      />
+    );
+  }
+
+  const handleSeeAll = useCallback(() => {
+    navigation.navigate('SeeAll', { title });
+  }, [navigation, title]);
+
+  const handlePressMovie = useCallback(
+    movieId => {
+      navigation.push('MovieDetails', { movieId });
+    },
+    [navigation],
+  );
+
+  const renderMovieItem = useCallback(
+    ({ item }) => <MovieCard item={item} onPress={handlePressMovie} />,
+    [handlePressMovie],
+  );
 
   return (
     <View style={{ marginVertical: 8 }}>
-      {/* Header */}
       <View
         style={{
           marginHorizontal: 16,
@@ -27,64 +151,32 @@ const MovieList = ({ title, MoviesApi, hideSeeAll = false }) => {
       >
         <Text style={{ color: 'white', fontSize: 18 }}>{title}</Text>
         {!hideSeeAll && (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleSeeAll}>
             <Text style={{ color: '#9CA3AF', fontSize: 16 }}>See All</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Horizontal Movie List */}
-      <ScrollView
+      <FlatList
+        data={Results}
+        keyExtractor={(item, idx) => (item?.id ? String(item.id) : String(idx))}
+        renderItem={renderMovieItem}
         horizontal
         showsHorizontalScrollIndicator={false}
+        initialNumToRender={6}
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        removeClippedSubviews
         decelerationRate="fast"
         snapToAlignment="start"
         snapToInterval={screenWidth / 2 + 16}
         contentContainerStyle={{
           paddingHorizontal: 8,
-          paddingBottom: 10,
-          paddingTop: 10,
+          paddingVertical: 10,
         }}
-        nestedScrollEnabled={true} // <--- important
-        keyboardShouldPersistTaps="handled" // help with touches
-      >
-        {results?.map((movie, index) => (
-          <TouchableOpacity
-            key={index}
-            activeOpacity={0.8}
-            onPress={() => navigation.push('MovieDetails', { movie })}
-            style={{ marginHorizontal: 8 }}
-          >
-            <View style={{ width: screenWidth / 2 }}>
-              <Image
-                source={{
-                  uri: `${IMAGE_BASE_URL}${
-                    movie?.poster_path || movie?.backdrop_path
-                  }`,
-                }}
-                style={{
-                  width: screenWidth / 2,
-                  height: screenHeight / 2.5,
-                  borderRadius: 8,
-                }}
-                resizeMode="cover"
-              />
-              <Text
-                numberOfLines={1}
-                style={{
-                  color: '#cbd5e1',
-                  marginTop: 8,
-                  width: screenWidth / 2,
-                }}
-              >
-                {movie?.title}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      />
     </View>
   );
 };
 
-export default MovieList;
+export default memo(MovieList);
