@@ -14,6 +14,8 @@ import { useGetAllSearchMoviesQuery } from '../features/movies';
 import { IMAGE_BASE_URL } from '@env';
 import { useNavigation } from '@react-navigation/native';
 import { BackUpPosterImage } from '../utils/Backup';
+import { DateFormatter } from '../utils/Formatter';
+import FastImage from 'react-native-fast-image';
 
 export default function SearchScreen() {
   const [q, setQ] = useState('');
@@ -131,11 +133,16 @@ export default function SearchScreen() {
           }}
           className="rounded-lg overflow-hidden"
         >
-          <Image
-            source={{ uri: poster }}
+          <FastImage
+            source={{
+              uri: poster,
+              priority: FastImage.priority.high,
+              cache: FastImage.cacheControl.immutable,
+            }}
             style={{ width: '100%', height: '100%' }}
-            resizeMode="cover"
+            resizeMode={FastImage.resizeMode.cover}
           />
+
           <View className="absolute left-[6px] top-[6px] bg-sky-500 px-[6px] py-[2px] rounded-[4px]">
             <Text className="text-white text-[11px] font-bold">
               {item?.original_language?.toUpperCase() || 'HI'}
@@ -154,7 +161,9 @@ export default function SearchScreen() {
               {item?.title?.replace(/^(\S+\s?)/, '') || item?.title}
             </Text>
 
-            <Text className="text-[#9CA3AF] mt-1">{item?.release_date}</Text>
+            <Text className="text-[#9CA3AF] mt-1">
+              {DateFormatter(item?.release_date)}
+            </Text>
             <Text className="text-[#9CA3AF] mt-1" numberOfLines={2}>
               {item?.overview}
             </Text>

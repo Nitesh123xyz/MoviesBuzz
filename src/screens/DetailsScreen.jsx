@@ -20,6 +20,7 @@ import {
 } from '../features/movies';
 import MainLoader from '../components/loaders/MainLoader';
 import MovieList from '../components/MovieList';
+import { DateFormatter } from '../utils/Formatter';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const DetailsScreen = ({ route, navigation }) => {
@@ -117,7 +118,7 @@ const DetailsScreen = ({ route, navigation }) => {
           </Text>
           <Text className="text-neutral-400">
             <Text className="text-white">Release : </Text>
-            {MoviesDetails?.release_date}
+            {DateFormatter(MoviesDetails?.release_date)}
           </Text>
           <Text className="text-neutral-400">
             <Text className="text-white">Runtime : </Text>

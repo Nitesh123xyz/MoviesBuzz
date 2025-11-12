@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -14,83 +14,38 @@ import Rating from './Rating';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-/**
- * MovieCard: isolated component for each item.
- * It owns its own loading/error state (hooks are local and stable).
- */
 const MovieCard = memo(function MovieCard({ item, onPress }) {
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(false);
-
   const imageUri = `${IMAGE_BASE_URL}${
     item?.poster_path || item?.backdrop_path
   }`;
-
-  const onLoadStart = useCallback(() => {
-    setLoading(true);
-    setError(false);
-  }, []);
-
-  const onLoadEnd = useCallback(() => {
-    setLoading(false);
-  }, []);
-
-  const onError = useCallback(() => {
-    setLoading(false);
-    setError(true);
-  }, []);
-
-  // local fallback image — update path as needed
-  const fallbackSource = require('../assets/images/logo.png');
 
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() => onPress(item?.id)}
-      style={{ marginHorizontal: 8 }}
+      style={{ marginHorizontal: 7.5 }}
     >
       <View style={{ width: screenWidth / 2 }}>
         <FastImage
-          source={
-            error
-              ? fallbackSource
-              : {
-                  uri: imageUri,
-                  priority: FastImage.priority.high,
-                  cache: FastImage.cacheControl.immutable,
-                }
-          }
+          source={{
+            uri: imageUri,
+            priority: FastImage.priority.high,
+            cache: FastImage.cacheControl.immutable,
+          }}
           style={{
             width: screenWidth / 2,
-            height: screenHeight / 2.5,
+            height: screenHeight / 2.9,
             borderRadius: 8,
             overflow: 'hidden',
             backgroundColor: '#111827',
+            position: 'relative',
           }}
           resizeMode={FastImage.resizeMode.cover}
-          onLoadStart={onLoadStart}
-          onLoad={onLoadEnd}
-          onError={onError}
         />
 
-        {loading && (
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              left: 8,
-              top: 8,
-              width: screenWidth / 2 - 16,
-              height: screenHeight / 2.5,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <ActivityIndicator size="large" color="white" />
-          </View>
-        )}
-
-        <Rating RatingPer={item?.vote_average} Size={15} />
+        <View pointerEvents="none">
+          <Rating RatingPer={item?.vote_average} Size={15} />
+        </View>
 
         <Text
           numberOfLines={1}

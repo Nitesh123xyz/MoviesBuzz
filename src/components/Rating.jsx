@@ -4,7 +4,7 @@ import CircularProgress from 'react-native-circular-progress-indicator';
 const Rating = ({ RatingPer = 0, Size = 25 }) => {
   const percentValue = Math.round((RatingPer / 10) * 100);
   return (
-    <View className="absolute bottom-3 right-2">
+    <View className="absolute bottom-2 right-1">
       <CircularProgress
         value={percentValue}
         radius={Size}

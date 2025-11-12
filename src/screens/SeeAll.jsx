@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   Pressable,
   Text,
   View,
@@ -12,10 +11,12 @@ import {
   useGetLatestMoviesQuery,
   useGetUpcomingMoviesQuery,
 } from '../features/movies';
-import { LayoutGrid } from 'lucide-react-native';
+import { LayoutGrid, LayoutList } from 'lucide-react-native';
 import { IMAGE_BASE_URL } from '@env';
+import { DateFormatter } from '../utils/Formatter';
+import FastImage from 'react-native-fast-image';
+import { BackUpPosterImage } from '../utils/Backup';
 
-// Layout modes
 const LAYOUTS = {
   LIST: 'LIST',
   GRID3: 'GRID3',
@@ -23,7 +24,6 @@ const LAYOUTS = {
 
 const SeeAll = ({ route, navigation }) => {
   const { title } = route?.params;
-
   const [pageNo, setPageNo] = useState(1);
   const [items, setItems] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -73,14 +73,24 @@ const SeeAll = ({ route, navigation }) => {
     setPageNo(prev => prev + 1);
   };
 
+  const shuffle = arr => {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+
   const refreshList = () => {
     setPageNo(1);
-    setItems([]);
+    setItems(prev => {
+      const copy = [...prev];
+      return shuffle(copy);
+    });
   };
 
   const keyExtractor = item => String(item.id ?? Math.random());
 
-  // Compute numColumns for FlatList based on layout
   const numColumns =
     layout === LAYOUTS.LIST ? 1 : layout === LAYOUTS.GRID3 ? 3 : 3;
 
@@ -90,21 +100,28 @@ const SeeAll = ({ route, navigation }) => {
       onPress={() => navigation.navigate('MovieDetails', { movieId: item.id })}
       className="px-4 py-3 border-b border-gray-700 flex-row items-center bg-black"
     >
-      <Image
+      <FastImage
         source={{
           uri: item.poster_path
             ? `${IMAGE_BASE_URL}${item.poster_path}`
-            : undefined,
+            : BackUpPosterImage,
+          priority: FastImage.priority.high,
+          cache: FastImage.cacheControl.immutable,
         }}
-        className="w-20 h-28 rounded-md bg-gray-800"
-        resizeMode="cover"
+        style={{
+          width: 100,
+          height: 100,
+          borderRadius: 8,
+          backgroundColor: '#111827',
+        }}
+        resizeMode={FastImage.resizeMode.cover}
       />
       <View className="ml-3 flex-1">
         <Text className="text-white text-base font-semibold">
           {item?.title ?? item?.name ?? 'Untitled'}
         </Text>
         <Text className="text-gray-400 text-xs mt-1">
-          {item?.release_date ?? item?.first_air_date ?? ''}
+          {DateFormatter(item?.release_date) ?? ''}
         </Text>
         <View className="mt-2 inline-flex flex-row items-center">
           <View className="px-2 py-1 bg-yellow-500 rounded-full">
@@ -117,8 +134,8 @@ const SeeAll = ({ route, navigation }) => {
     </TouchableOpacity>
   );
 
-  const renderGridItem = ({ item, index }) => {
-    // For grid we keep compact card
+  const renderGridItem = ({ item }) => {
+    console.log(item);
     return (
       <TouchableOpacity
         onPress={() =>
@@ -127,17 +144,23 @@ const SeeAll = ({ route, navigation }) => {
         className={`m-2 bg-black ${numColumns === 3 ? 'flex-1' : ''}`}
         style={numColumns === 3 ? { maxWidth: '31%' } : undefined}
       >
-        <Image
+        <FastImage
           source={{
             uri: item.poster_path
               ? `${IMAGE_BASE_URL}${item.poster_path}`
-              : undefined,
+              : BackUpPosterImage,
+            priority: FastImage.priority.high,
+            cache: FastImage.cacheControl.immutable,
           }}
-          className={`${
-            numColumns === 3 ? 'w-full h-28' : 'w-full h-40'
-          } rounded-md bg-gray-800`}
-          resizeMode="cover"
+          style={{
+            width: '100%',
+            height: numColumns === 3 ? 140 : 200,
+            borderRadius: 8,
+            backgroundColor: '#111827',
+          }}
+          resizeMode={FastImage.resizeMode.cover}
         />
+
         <View className="mt-2 px-1">
           <Text className="text-white text-sm font-semibold" numberOfLines={2}>
             {item?.title ?? item?.name ?? 'Untitled'}
@@ -161,7 +184,7 @@ const SeeAll = ({ route, navigation }) => {
     if (!activeFetching) return null;
     return (
       <View className="py-4 items-center">
-        <ActivityIndicator size="small" />
+        <ActivityIndicator size={30} color="#fff" />
         <Text className="text-gray-400 text-xs mt-2">Loading more...</Text>
       </View>
     );
@@ -170,7 +193,7 @@ const SeeAll = ({ route, navigation }) => {
   if (activeLoading && pageNo === 1 && items.length === 0) {
     return (
       <View className="flex-1 bg-black items-center justify-center">
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size={30} color="#fff" />
         <Text className="text-gray-300 mt-3">Loading...</Text>
       </View>
     );
@@ -192,7 +215,6 @@ const SeeAll = ({ route, navigation }) => {
 
   return (
     <View className="flex-1 bg-black">
-      {/* Header + layout toggles */}
       <View className="px-4 py-3 border-b border-gray-800 flex-row items-center justify-between">
         <Text className="text-white text-2xl font-bold">{title}</Text>
 
@@ -203,7 +225,7 @@ const SeeAll = ({ route, navigation }) => {
               layout === LAYOUTS.LIST ? 'bg-gray-700' : 'bg-gray-900'
             }`}
           >
-            <Text className="text-xs text-white">List</Text>
+            <LayoutList color={'white'} size={16} />
           </Pressable>
 
           <Pressable

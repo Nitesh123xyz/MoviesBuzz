@@ -7,11 +7,11 @@ import store from './src/store/store';
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <SafeAreaProvider>
+    <SafeAreaProvider>
+      <Provider store={store}>
         <AppNavigation />
-      </SafeAreaProvider>
-    </Provider>
+      </Provider>
+    </SafeAreaProvider>
   );
 };
 
