@@ -58,25 +58,10 @@ const MovieCard = memo(function MovieCard({ item, onPress }) {
   );
 });
 
-const MovieList = ({
-  title,
-  MoviesApi,
-  loader = false,
-  hideSeeAll = false,
-}) => {
+const MovieList = ({ title, MoviesApi, loader, hideSeeAll = false }) => {
   const { results, cast } = MoviesApi || {};
   const Results = results || cast || [];
   const navigation = useNavigation();
-
-  if (loader) {
-    return (
-      <ActivityIndicator
-        size="large"
-        color="white"
-        style={{ marginVertical: 20 }}
-      />
-    );
-  }
 
   const handleSeeAll = useCallback(() => {
     navigation.navigate('SeeAll', { title });
@@ -93,6 +78,16 @@ const MovieList = ({
     ({ item }) => <MovieCard item={item} onPress={handlePressMovie} />,
     [handlePressMovie],
   );
+
+  if (loader) {
+    return (
+      <ActivityIndicator
+        size="large"
+        color="white"
+        style={{ marginVertical: 20 }}
+      />
+    );
+  }
 
   return (
     <View style={{ marginVertical: 8 }}>

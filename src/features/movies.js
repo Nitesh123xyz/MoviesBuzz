@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { API_KEY } from '@env';
+import { ACCOUNT_ID, API_KEY } from '@env';
 // const API_KEY = API_KEY;
 export const MoviesSlice = createApi({
   reducerPath: 'movies',
@@ -60,17 +60,35 @@ export const MoviesSlice = createApi({
       query: id =>
         `https://api.themoviedb.org/3/person/${id}?language=en-US?api_key=${API_KEY}`,
     }),
+
+    // favorite movies
+    getFavoriteMovies: builder.query({
+      query: sort_by =>
+        `https://api.themoviedb.org/3/account/${ACCOUNT_ID}/favorite/movies?language=en-US&page=1&sort_by=created_at.${sort_by}&api_key=${API_KEY}`,
+    }),
+    addFavoriteMovies: builder.mutation({
+      query: favData => ({
+        url: `https://api.themoviedb.org/3/account/${ACCOUNT_ID}/favorite?api_key=${API_KEY}`,
+        method: 'POST',
+        body: favData,
+      }),
+    }),
   }),
 });
 
 export const {
   useGetAllTrendingMoviesQuery,
   useGetAllSearchMoviesQuery,
+  // ------------------------------
   useGetUpcomingMoviesQuery,
   useGetLatestMoviesQuery,
   useGetMovieDetailsQuery,
   useGetSimilarMoviesQuery,
+  // ------------------------------
   useGetCastQuery,
   useGetCastRelatedMoviesQuery,
   useGetCastDetailsQuery,
+  // ------------------------------
+  useGetFavoriteMoviesQuery,
+  useAddFavoriteMoviesMutation,
 } = MoviesSlice;

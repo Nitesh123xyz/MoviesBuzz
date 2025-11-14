@@ -14,6 +14,7 @@ import Cast from '../components/Cast';
 import { IMAGE_BASE_URL } from '@env';
 import { BackUpPosterImage } from '../utils/Backup';
 import {
+  useAddFavoriteMoviesMutation,
   useGetCastQuery,
   useGetMovieDetailsQuery,
   useGetSimilarMoviesQuery,
@@ -34,7 +35,10 @@ const DetailsScreen = ({ route, navigation }) => {
   const { data: SimilarMovies, isLoading: SimilarMoviesLoading } =
     useGetSimilarMoviesQuery(movieId);
 
-  if (isLoading) {
+  const [addFavoriteMovies, { isLoading: AddFavoriteLoading }] =
+    useAddFavoriteMoviesMutation();
+
+  if (isLoading || AddFavoriteLoading) {
     return <MainLoader />;
   }
   if (!!MoviesDetails?.backdrop_path) {
@@ -44,6 +48,20 @@ const DetailsScreen = ({ route, navigation }) => {
   } else {
     PosterImage = BackUpPosterImage;
   }
+
+  const handleFavoriteToggle = async () => {
+    const favData = {
+      media_type: 'movie',
+      media_id: movieId,
+      favorite: true,
+    };
+    const data = await addFavoriteMovies(favData);
+    console.log(data);
+    console.log(movieId);
+    setIsFavorite(true);
+  };
+
+  console.log(movieId);
 
   return (
     <>
@@ -62,7 +80,7 @@ const DetailsScreen = ({ route, navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => setIsFavorite(!isFavorite)}
+              onPress={() => handleFavoriteToggle()}
               className={`flex items-center justify-center w-10 h-10 rounded-full shadow-lg ${
                 isFavorite ? 'bg-red-500' : 'bg-white/40'
               }`}

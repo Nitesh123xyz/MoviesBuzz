@@ -6,8 +6,9 @@ import MoviesScreen from '../screens/Testing';
 // import ShowsScreen from '../screens/ShowsScreen';
 // import LibraryScreen from '../screens/LibraryScreen';
 // import SettingsScreen from '../screens/SettingsScreen';
+import FavMovies from '../screens/FavMovies';
 import CustomDrawerContent from '../components/CustomDrawerContent';
-import { Home, Film, Tv, Library, Settings } from 'lucide-react-native';
+import { Home, Film, Tv, Library, Settings, Heart } from 'lucide-react-native';
 
 const Drawer = createDrawerNavigator();
 
@@ -21,9 +22,10 @@ export default function DrawerNavigator() {
           backgroundColor: '#1f1f1f',
           width: 280,
         },
-        drawerLabelStyle: { color: '#000', fontSize: 15, marginLeft: -5 },
+        drawerLabelStyle: { fontSize: 15, marginLeft: -5 },
         drawerActiveTintColor: 'black',
-        drawerInactiveTintColor: '#b3b3b3',
+        // drawerInactiveBackgroundColor: 'gray',
+        drawerInactiveTintColor: 'white',
         drawerActiveBackgroundColor: 'yellow',
         drawerItemStyle: { borderRadius: 20, marginHorizontal: 10 },
       }}
@@ -43,21 +45,21 @@ export default function DrawerNavigator() {
           drawerIcon: ({ color }) => <Film size={20} color={color} />,
         }}
       />
-      {/* <Drawer.Screen
-        name="Shows"
-        component={ShowsScreen}
+      <Drawer.Screen
+        name="Favorite"
+        component={FavMovies}
         options={{
-          drawerIcon: ({ color }) => <Tv size={20} color={color} />,
+          drawerIcon: ({ color }) => <Heart size={20} color={color} />,
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="Library"
         component={LibraryScreen}
         options={{
           drawerIcon: ({ color }) => <Library size={20} color={color} />,
         }}
-      />
-      <Drawer.Screen
+      /> */}
+      {/* <Drawer.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
