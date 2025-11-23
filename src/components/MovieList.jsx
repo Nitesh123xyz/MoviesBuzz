@@ -11,13 +11,14 @@ import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import { IMAGE_BASE_URL } from '@env';
 import Rating from './Rating';
+import { BackUpPosterImage } from '../utils/Backup';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const MovieCard = memo(function MovieCard({ item, onPress }) {
-  const imageUri = `${IMAGE_BASE_URL}${
-    item?.poster_path || item?.backdrop_path
-  }`;
+  const imageUri = item?.poster_path
+    ? `${IMAGE_BASE_URL}${item.poster_path}`
+    : item?.backdrop_path ?? BackUpPosterImage;
 
   return (
     <TouchableOpacity
@@ -28,7 +29,7 @@ const MovieCard = memo(function MovieCard({ item, onPress }) {
       <View style={{ width: screenWidth / 2 }}>
         <FastImage
           source={{
-            uri: imageUri,
+            uri: imageUri !== null ? imageUri : BackUpPosterImage,
             priority: FastImage.priority.high,
             cache: FastImage.cacheControl.immutable,
           }}
@@ -44,7 +45,7 @@ const MovieCard = memo(function MovieCard({ item, onPress }) {
         />
 
         <View pointerEvents="none">
-          <Rating RatingPer={item?.vote_average} Size={15} />
+          <Rating RatingPer={item?.vote_average} Size={18} />
         </View>
 
         <Text

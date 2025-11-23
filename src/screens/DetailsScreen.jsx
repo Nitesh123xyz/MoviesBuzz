@@ -1,4 +1,4 @@
-import { ChevronLeft, Heart } from 'lucide-react-native';
+import { ChevronLeft, Heart, Plus } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   View,
@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  ToastAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Cast from '../components/Cast';
@@ -16,17 +18,18 @@ import { BackUpPosterImage } from '../utils/Backup';
 import {
   useAddFavoriteMoviesMutation,
   useGetCastQuery,
+  useGetFavoriteMoviesQuery,
   useGetMovieDetailsQuery,
   useGetSimilarMoviesQuery,
 } from '../features/movies';
-import MainLoader from '../components/loaders/MainLoader';
 import MovieList from '../components/MovieList';
 import { DateFormatter } from '../utils/Formatter';
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const DetailsScreen = ({ route, navigation }) => {
   const { movieId } = route?.params;
-  const [isFavorite, setIsFavorite] = useState(false);
+
   let PosterImage = '';
   // -----------------------------------------
 
@@ -34,12 +37,25 @@ const DetailsScreen = ({ route, navigation }) => {
   const { data: Casts, isLoading: CastsLoading } = useGetCastQuery(movieId);
   const { data: SimilarMovies, isLoading: SimilarMoviesLoading } =
     useGetSimilarMoviesQuery(movieId);
+  // ----------------------------------------
+  const { data: favData } = useGetFavoriteMoviesQuery();
+  const results = favData?.results ?? [];
+  const isFavoriteMovie = results?.some(movie => movie.id === movieId);
+  const [isFavorite, setIsFavorite] = useState(isFavoriteMovie);
+  const [isWatchList, setIsWatchList] = useState(false);
 
-  const [addFavoriteMovies, { isLoading: AddFavoriteLoading }] =
-    useAddFavoriteMoviesMutation();
+  // ----------------------------------------
 
-  if (isLoading || AddFavoriteLoading) {
-    return <MainLoader />;
+  const [addFavoriteMovies] = useAddFavoriteMoviesMutation();
+
+  if (isLoading) {
+    return (
+      <>
+        <View className="flex-1 h-screen justify-center items-center">
+          <ActivityIndicator size={35} color="#fff" />
+        </View>
+      </>
+    );
   }
   if (!!MoviesDetails?.backdrop_path) {
     PosterImage = `${IMAGE_BASE_URL}${MoviesDetails?.backdrop_path}`;
@@ -49,19 +65,50 @@ const DetailsScreen = ({ route, navigation }) => {
     PosterImage = BackUpPosterImage;
   }
 
+  const showToastWithGravity = message => {
+    ToastAndroid.showWithGravity(
+      message,
+      ToastAndroid.SHORT,
+      ToastAndroid.TOP,
+      0,
+      60,
+    );
+  };
+
+  const handleAddToWatchList = async () => {
+    // if (isFavorite) return;
+    // const favData = {
+    //   media_type: 'movie',
+    //   media_id: movieId,
+    //   favorite: !isFavoriteMovie,
+    // };
+    // const { data } = await addFavoriteMovies(favData);
+    // console.log(data);
+    // const { success } = data || {};
+    // if (success) {
+    //   setIsFavorite(!isFavorite);
+    //   showToastWithGravity();
+    // }
+  };
+
+  console.log(isFavoriteMovie);
+
   const handleFavoriteToggle = async () => {
+    // if (isFavorite) return;
+
     const favData = {
       media_type: 'movie',
       media_id: movieId,
-      favorite: true,
+      favorite: isFavoriteMovie ? false : true,
     };
-    const data = await addFavoriteMovies(favData);
+    const { data } = await addFavoriteMovies(favData);
     console.log(data);
-    console.log(movieId);
-    setIsFavorite(true);
+    const { success, status_message } = data || {};
+    if (success) {
+      setIsFavorite(isFavoriteMovie ? false : true);
+      showToastWithGravity(status_message);
+    }
   };
-
-  console.log(movieId);
 
   return (
     <>
@@ -77,6 +124,12 @@ const DetailsScreen = ({ route, navigation }) => {
               className="flex items-center justify-center bg-white/40 backdrop-blur-md w-10 h-10 rounded-full shadow-lg"
             >
               <ChevronLeft color={'white'} size={26} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleAddToWatchList()}
+              className="flex items-center justify-center bg-white/40 backdrop-blur-md w-10 h-10 rounded-full shadow-lg"
+            >
+              <Plus color={'white'} size={26} />
             </TouchableOpacity>
 
             <TouchableOpacity

@@ -64,13 +64,30 @@ export const MoviesSlice = createApi({
     // favorite movies
     getFavoriteMovies: builder.query({
       query: sort_by =>
-        `https://api.themoviedb.org/3/account/${ACCOUNT_ID}/favorite/movies?language=en-US&page=1&sort_by=created_at.${sort_by}&api_key=${API_KEY}`,
+        `https://api.themoviedb.org/3/account/${ACCOUNT_ID}/favorite/movies?language=en-US&page=1&sort_by=created_at.${
+          sort_by || 'desc'
+        }&api_key=${API_KEY}`,
     }),
     addFavoriteMovies: builder.mutation({
       query: favData => ({
         url: `https://api.themoviedb.org/3/account/${ACCOUNT_ID}/favorite?api_key=${API_KEY}`,
         method: 'POST',
         body: favData,
+      }),
+    }),
+
+    // watch_list movies
+    getWatchListMovies: builder.query({
+      query: sort_by =>
+        `https://api.themoviedb.org/3/account/${ACCOUNT_ID}/watchlist/movies?language=en-US&page=1&sort_by=created_at.${
+          sort_by || 'desc'
+        }&api_key=${API_KEY}`,
+    }),
+    addWatchListMovies: builder.mutation({
+      query: watchListData => ({
+        url: `https://api.themoviedb.org/3/account/${ACCOUNT_ID}/watchlist?api_key=${API_KEY}`,
+        method: 'POST',
+        body: watchListData,
       }),
     }),
   }),

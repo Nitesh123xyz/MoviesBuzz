@@ -9,11 +9,10 @@ const Rating = ({ RatingPer = 0, Size = 25 }) => {
         value={percentValue}
         radius={Size}
         showProgressValue={false}
-        titleColor={'white'}
-        progressValueColor={'#fff'}
+        titleColor="white"
         title={`${RatingPer.toFixed(1)}`}
-        titleStyle={{ fontSize: 8, fontWeight: 'bold' }}
-        activeStrokeColor="#FFEB3B"
+        titleStyle={{ fontSize: 10, fontWeight: 'bold' }}
+        activeStrokeColor="#CFECF7"
         activeStrokeWidth={5}
         duration={900}
       />
