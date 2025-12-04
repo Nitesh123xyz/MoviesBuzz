@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { ACCOUNT_ID, API_KEY } from '@env';
-// const API_KEY = API_KEY;
 export const MoviesSlice = createApi({
   reducerPath: 'movies',
   baseQuery: fetchBaseQuery({
