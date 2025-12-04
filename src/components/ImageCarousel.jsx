@@ -56,9 +56,9 @@ const MovieCard = ({ item, handleClick }) => {
       <View style={{ width: screenWidth, height: carouselHeight }}>
         <FastImage
           source={{
-            uri: `https://image.tmdb.org/t/p/w780/${item.poster_path}`,
-            priority: FastImage.priority.high,
-            cache: FastImage.cacheControl.immutable,
+            uri: `${IMAGE_BASE_URL}${item?.poster_path}`,
+            priority: FastImage?.priority.high,
+            cache: FastImage?.cacheControl.immutable,
           }}
           style={{ width: '100%', height: '100%', borderRadius: 16 }}
           resizeMode={FastImage.resizeMode.cover}

@@ -1,4 +1,4 @@
-import { ChevronLeft, Heart, Plus } from 'lucide-react-native';
+import { Check, ChevronLeft, Heart, Plus, Send } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   View,
@@ -24,8 +24,7 @@ import {
   useGetSimilarMoviesQuery,
 } from '../features/movies';
 import MovieList from '../components/MovieList';
-import { DateFormatter } from '../utils/Formatter';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DateFormatter, TimerFormatter } from '../utils/Formatter';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -112,6 +111,8 @@ const DetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  console.log(MoviesDetails);
+
   return (
     <>
       <StatusBar barStyle="light-content" className="bg-neutral-800" />
@@ -121,10 +122,7 @@ const DetailsScreen = ({ route, navigation }) => {
       >
         {/* Header: Back Button, Favorite, Poster */}
         <View className="w-full">
-          <View
-            style={{ paddingTop: insets.top }}
-            className="absolute z-20 w-full flex-row items-center justify-between px-4 mt-2"
-          >
+          {/* <View className="absolute z-20 w-full flex-row items-center justify-between px-4 mt-2">
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               className="flex items-center justify-center bg-white/40 backdrop-blur-md w-10 h-10 rounded-full shadow-lg"
@@ -146,7 +144,7 @@ const DetailsScreen = ({ route, navigation }) => {
             >
               <Heart color={'white'} size={26} />
             </TouchableOpacity>
-          </View>
+          </View> */}
 
           {/* Poster with Gradient */}
           <View className="mb-20">
@@ -180,50 +178,75 @@ const DetailsScreen = ({ route, navigation }) => {
           </View>
         </View>
         {/* Movie Info */}
-        <View className="px-4">
-          <Text className="text-2xl font-bold text-white">
+        <View className="px-2">
+          <Text
+            numberOfLines={1}
+            className="text-xl text-center font-bold text-white"
+          >
             {MoviesDetails?.title}
           </Text>
 
-          <Text className="text-base text-neutral-400 my-1">
-            <Text className="text-white">Adult : </Text>
-            {MoviesDetails?.adult ? 'Yes' : 'No'}
-          </Text>
-          <Text className="text-base text-neutral-400 mb-1">
-            <Text className="text-white">Original_language</Text> :{' '}
-            {MoviesDetails?.original_language}
-          </Text>
-          <Text className="text-neutral-400">
-            <Text className="text-white">Release : </Text>
-            {DateFormatter(MoviesDetails?.release_date)}
-          </Text>
-          <Text className="text-neutral-400">
-            <Text className="text-white">Runtime : </Text>
-            {MoviesDetails?.runtime} min
-          </Text>
-          <View className="flex-row space-x-2 my-1">
-            <Text className="text-white">Genres : </Text>
-            <Text className="text-base text-neutral-400 text-wrap">
-              {MoviesDetails?.genres?.map(info => info?.name).join(', ')}
+          <View className="w-full flex-row items-center justify-center mt-3 gap-2 border border-gray-500 rounded-lg py-4">
+            <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
+              <Text className="text-white text-xs">
+                {DateFormatter(MoviesDetails?.release_date)}
+              </Text>
+            </View>
+            <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
+              <Text className="text-white text-xs">
+                {TimerFormatter(MoviesDetails?.runtime)}
+              </Text>
+            </View>
+            <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
+              <Text className="text-xs text-white">
+                {MoviesDetails?.spoken_languages
+                  ?.map(info => info?.name)
+                  .join(', ')}
+              </Text>
+            </View>
+            <Text className="text-xs text-neutral-200">
+              <Text className="text-white">Adult : </Text>
+              {MoviesDetails?.adult ? 'Yes' : 'No'}
             </Text>
           </View>
-          <Text className="text-base text-neutral-400 my-1">
-            <Text className="text-white">Status</Text> : {MoviesDetails?.status}
-          </Text>
-          <Text className="text-base text-neutral-400 my-1">
-            <Text className="text-white">Revenue</Text> :{' '}
-            {MoviesDetails?.revenue}
-          </Text>
-          <Text className="text-base text-neutral-400 my-1">
-            <Text className="text-white">Languages</Text> :{' '}
-            {MoviesDetails?.spoken_languages
-              ?.map(info => info?.name)
-              .join(', ')}
-          </Text>
-          <Text numberOfLines={8} className="text-base text-neutral-400 my-1">
-            <Text className="text-white">Overview</Text> :{' '}
+
+          <View className="w-full my-4">
+            <Text className="text-xs text-center text-neutral-200">
+              {MoviesDetails?.genres?.map(g => g.name).join(' | ')}
+            </Text>
+          </View>
+
+          <Text numberOfLines={5} className="text-xs text-neutral-400">
             {MoviesDetails?.overview}
           </Text>
+
+          <View className="w-full flex-row items-center justify-between px-4 my-5">
+            <TouchableOpacity
+              onPress={() => handleAddToWatchList()}
+              className="flex items-center justify-center gap-1"
+            >
+              <Plus color={'white'} size={19} />
+              {/* <Check color={'white'} size={19} /> */}
+              <Text className="text-white text-[0.7rem]">WatchList</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              className="flex items-center justify-center gap-1"
+            >
+              <Send color={'white'} size={19} />
+              <Text className="text-white text-[0.7rem]">Share</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleFavoriteToggle()}
+              className={`flex items-center justify-center gap-1 ${
+                isFavorite ? 'bg-red-500' : ''
+              }`}
+            >
+              <Heart color={'white'} size={19} />
+              <Text className="text-white text-[0.7rem]">Rate</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {Casts?.cast.length > 0 && (
