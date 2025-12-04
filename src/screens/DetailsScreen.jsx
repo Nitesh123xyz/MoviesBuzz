@@ -10,6 +10,7 @@ import {
   StyleSheet,
   ToastAndroid,
   ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Cast from '../components/Cast';
@@ -24,6 +25,7 @@ import {
 } from '../features/movies';
 import MovieList from '../components/MovieList';
 import { DateFormatter } from '../utils/Formatter';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -43,7 +45,7 @@ const DetailsScreen = ({ route, navigation }) => {
   const isFavoriteMovie = results?.some(movie => movie.id === movieId);
   const [isFavorite, setIsFavorite] = useState(isFavoriteMovie);
   const [isWatchList, setIsWatchList] = useState(false);
-
+  const insets = useSafeAreaInsets();
   // ----------------------------------------
 
   const [addFavoriteMovies] = useAddFavoriteMoviesMutation();
@@ -112,13 +114,17 @@ const DetailsScreen = ({ route, navigation }) => {
 
   return (
     <>
+      <StatusBar barStyle="light-content" className="bg-neutral-800" />
       <ScrollView
         className="flex-1 bg-neutral-900"
         showsVerticalScrollIndicator={false}
       >
         {/* Header: Back Button, Favorite, Poster */}
         <View className="w-full">
-          <View className="absolute z-20 w-full flex-row items-center justify-between px-4 mt-2">
+          <View
+            style={{ paddingTop: insets.top }}
+            className="absolute z-20 w-full flex-row items-center justify-between px-4 mt-2"
+          >
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               className="flex items-center justify-center bg-white/40 backdrop-blur-md w-10 h-10 rounded-full shadow-lg"

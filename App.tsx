@@ -7,7 +7,7 @@ import store from './src/store/store';
 
 const App = () => {
   return (
-    <SafeAreaProvider>
+     <SafeAreaProvider style={{ flex: 1 }}>
       <Provider store={store}>
         <AppNavigation />
       </Provider>

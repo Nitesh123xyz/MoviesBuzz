@@ -10,12 +10,14 @@ import { Search, TextAlignStart } from 'lucide-react-native';
 import ImageCarousel from '../components/ImageCarousel';
 import MovieList from '../components/MovieList';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   useGetLatestMoviesQuery,
   useGetUpcomingMoviesQuery,
 } from '../features/movies';
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const { data: latest, isLoading: latestLoading } = useGetLatestMoviesQuery();
   const { data: upcoming, isLoading: upcomingLoading } =
     useGetUpcomingMoviesQuery();
@@ -27,7 +29,10 @@ const HomeScreen = () => {
   return (
     <>
       <StatusBar barStyle="light-content" className="bg-neutral-800" />
-      <View className="flex-1 bg-neutral-800">
+      <View
+        style={{ paddingTop: insets.top }}
+        className="flex-1 bg-neutral-800"
+      >
         <View className="px-1">
           <View className="flex-row items-center justify-between mx-3 py-1">
             <TouchableOpacity onPress={() => toggleDrawer()}>

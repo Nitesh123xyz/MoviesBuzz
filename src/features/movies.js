@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { ACCOUNT_ID, API_KEY } from '@env';
+// import { ACCOUNT_ID, API_KEY } from '@env';
+const API_KEY = 'b1d81b48ea20452c77acdd339cb341b9';
+const ACCOUNT_ID = '22366133';
 // const API_KEY = API_KEY;
 export const MoviesSlice = createApi({
   reducerPath: 'movies',
