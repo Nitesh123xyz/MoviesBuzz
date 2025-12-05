@@ -107,4 +107,7 @@ export const {
   // ------------------------------
   useGetFavoriteMoviesQuery,
   useAddFavoriteMoviesMutation,
+  // ------------------------------
+  useGetWatchListMoviesQuery,
+  useAddWatchListMoviesMutation,
 } = MoviesSlice;

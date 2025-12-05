@@ -7,6 +7,7 @@ import MoviesScreen from '../screens/Testing';
 // import LibraryScreen from '../screens/LibraryScreen';
 // import SettingsScreen from '../screens/SettingsScreen';
 import FavMovies from '../screens/FavMovies';
+import WatchListMovies from '../screens/WatchListMovies';
 import CustomDrawerContent from '../components/CustomDrawerContent';
 import { Home, Film, Tv, Library, Settings, Heart } from 'lucide-react-native';
 
@@ -52,13 +53,13 @@ export default function DrawerNavigator() {
           drawerIcon: ({ color }) => <Heart size={20} color={color} />,
         }}
       />
-      {/* <Drawer.Screen
+      <Drawer.Screen
         name="Library"
-        component={LibraryScreen}
+        component={WatchListMovies}
         options={{
           drawerIcon: ({ color }) => <Library size={20} color={color} />,
         }}
-      /> */}
+      />
       {/* <Drawer.Screen
         name="Settings"
         component={SettingsScreen}

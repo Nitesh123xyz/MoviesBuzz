@@ -1,5 +1,5 @@
-import { Check, ChevronLeft, Heart, Plus, Send } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { Check, Heart, Plus, Send } from 'lucide-react-native';
+import React from 'react';
 import {
   View,
   Text,
@@ -18,20 +18,21 @@ import { IMAGE_BASE_URL } from '@env';
 import { BackUpPosterImage } from '../utils/Backup';
 import {
   useAddFavoriteMoviesMutation,
+  useAddWatchListMoviesMutation,
   useGetCastQuery,
   useGetFavoriteMoviesQuery,
   useGetMovieDetailsQuery,
   useGetSimilarMoviesQuery,
+  useGetWatchListMoviesQuery,
 } from '../features/movies';
 import MovieList from '../components/MovieList';
 import { DateFormatter, TimerFormatter } from '../utils/Formatter';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const DetailsScreen = ({ route, navigation }) => {
   const { movieId } = route?.params;
 
-  let PosterImage = '';
   // -----------------------------------------
 
   const { data: MoviesDetails, isLoading } = useGetMovieDetailsQuery(movieId);
@@ -39,16 +40,27 @@ const DetailsScreen = ({ route, navigation }) => {
   const { data: SimilarMovies, isLoading: SimilarMoviesLoading } =
     useGetSimilarMoviesQuery(movieId);
   // ----------------------------------------
-  const { data: favData } = useGetFavoriteMoviesQuery();
-  const results = favData?.results ?? [];
-  const isFavoriteMovie = results?.some(movie => movie.id === movieId);
-  const [isFavorite, setIsFavorite] = useState(isFavoriteMovie);
-  const [isWatchList, setIsWatchList] = useState(false);
+  const { data: favData, refetch: FavoriteMoviesRefetch } =
+    useGetFavoriteMoviesQuery();
+  const FavResults = favData?.results ?? [];
+  const isFavoriteMovie = FavResults?.some(movie => movie.id === movieId);
+
+  // ----------------------------------------
+
+  const { data: watchData, refetch: WatchListMoviesRefetch } =
+    useGetWatchListMoviesQuery();
+  const WatchResult = watchData?.results ?? [];
+  const isWatchListMovie = WatchResult?.some(movie => movie.id === movieId);
+
+  // ----------------------------------------
+
   const insets = useSafeAreaInsets();
+
   // ----------------------------------------
 
   const [addFavoriteMovies] = useAddFavoriteMoviesMutation();
-
+  const [addWatchListMovies] = useAddWatchListMoviesMutation();
+  let PosterImage = '';
   if (isLoading) {
     return (
       <>
@@ -77,41 +89,32 @@ const DetailsScreen = ({ route, navigation }) => {
   };
 
   const handleAddToWatchList = async () => {
-    // if (isFavorite) return;
-    // const favData = {
-    //   media_type: 'movie',
-    //   media_id: movieId,
-    //   favorite: !isFavoriteMovie,
-    // };
-    // const { data } = await addFavoriteMovies(favData);
-    // console.log(data);
-    // const { success } = data || {};
-    // if (success) {
-    //   setIsFavorite(!isFavorite);
-    //   showToastWithGravity();
-    // }
+    const favData = {
+      media_type: 'movie',
+      media_id: movieId,
+      watchlist: isWatchListMovie ? false : true,
+    };
+    const { data } = await addWatchListMovies(favData);
+    const { success, status_message } = data || {};
+    if (success) {
+      WatchListMoviesRefetch();
+      showToastWithGravity(status_message);
+    }
   };
 
-  console.log(isFavoriteMovie);
-
   const handleFavoriteToggle = async () => {
-    // if (isFavorite) return;
-
     const favData = {
       media_type: 'movie',
       media_id: movieId,
       favorite: isFavoriteMovie ? false : true,
     };
     const { data } = await addFavoriteMovies(favData);
-    console.log(data);
     const { success, status_message } = data || {};
     if (success) {
-      setIsFavorite(isFavoriteMovie ? false : true);
+      FavoriteMoviesRefetch();
       showToastWithGravity(status_message);
     }
   };
-
-  console.log(MoviesDetails);
 
   return (
     <>
@@ -119,35 +122,11 @@ const DetailsScreen = ({ route, navigation }) => {
       <ScrollView
         className="flex-1 bg-neutral-900"
         showsVerticalScrollIndicator={false}
+        style={{ paddingTop: insets.top }}
       >
-        {/* Header: Back Button, Favorite, Poster */}
         <View className="w-full">
-          {/* <View className="absolute z-20 w-full flex-row items-center justify-between px-4 mt-2">
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="flex items-center justify-center bg-white/40 backdrop-blur-md w-10 h-10 rounded-full shadow-lg"
-            >
-              <ChevronLeft color={'white'} size={26} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => handleAddToWatchList()}
-              className="flex items-center justify-center bg-white/40 backdrop-blur-md w-10 h-10 rounded-full shadow-lg"
-            >
-              <Plus color={'white'} size={26} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleFavoriteToggle()}
-              className={`flex items-center justify-center w-10 h-10 rounded-full shadow-lg ${
-                isFavorite ? 'bg-red-500' : 'bg-white/40'
-              }`}
-            >
-              <Heart color={'white'} size={26} />
-            </TouchableOpacity>
-          </View> */}
-
           {/* Poster with Gradient */}
-          <View className="mb-20">
+          <View className="mb-5">
             <ImageBackground
               source={{
                 uri: PosterImage,
@@ -159,15 +138,8 @@ const DetailsScreen = ({ route, navigation }) => {
               }}
               resizeMode="cover"
             >
-              {/* Black gradient overlay */}
               <LinearGradient
-                colors={[
-                  'rgba(23,23,23,1)',
-                  'rgba(23,23,23,0.7)',
-                  'rgba(23,23,23,0.5)',
-                  'rgba(255,255,255,0.1)',
-                  'transparent',
-                ]}
+                colors={['rgba(23,23,23,0.5)', 'transparent']}
                 start={{ x: 0, y: 1 }}
                 end={{ x: 0, y: 0 }}
                 style={{
@@ -186,64 +158,68 @@ const DetailsScreen = ({ route, navigation }) => {
             {MoviesDetails?.title}
           </Text>
 
-          <View className="w-full flex-row items-center justify-center mt-3 gap-2 border border-gray-500 rounded-lg py-4">
+          <View className="w-full flex-row items-center justify-center mt-5 gap-2 rounded-lg px-2">
             <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
-              <Text className="text-white text-xs">
+              <Text className="text-white text-[0.85rem]">
                 {DateFormatter(MoviesDetails?.release_date)}
               </Text>
             </View>
             <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
-              <Text className="text-white text-xs">
+              <Text className="text-white text-[0.85rem]">
                 {TimerFormatter(MoviesDetails?.runtime)}
               </Text>
             </View>
             <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
-              <Text className="text-xs text-white">
-                {MoviesDetails?.spoken_languages
-                  ?.map(info => info?.name)
-                  .join(', ')}
+              <Text className="text-[0.85rem] text-white">
+                {MoviesDetails?.spoken_languages?.length > 2
+                  ? MoviesDetails?.spoken_languages?.length + ' Languages'
+                  : MoviesDetails?.spoken_languages
+                      ?.map(info => info?.name)
+                      .join(', ')}
               </Text>
             </View>
-            <Text className="text-xs text-neutral-200">
+            <Text className="text-[0.85rem] text-neutral-200">
               <Text className="text-white">Adult : </Text>
               {MoviesDetails?.adult ? 'Yes' : 'No'}
             </Text>
           </View>
 
-          <View className="w-full my-4">
-            <Text className="text-xs text-center text-neutral-200">
+          <View className="w-full my-5">
+            <Text className="text-[0.85rem] text-center text-neutral-200">
               {MoviesDetails?.genres?.map(g => g.name).join(' | ')}
             </Text>
           </View>
 
-          <Text numberOfLines={5} className="text-xs text-neutral-400">
+          <Text
+            allowFontScaling={false}
+            numberOfLines={8}
+            className="text-[0.84rem] leading-5 text-neutral-400"
+          >
             {MoviesDetails?.overview}
           </Text>
 
-          <View className="w-full flex-row items-center justify-between px-4 my-5">
+          <View className="w-full flex-row items-center justify-between px-4 my-8">
             <TouchableOpacity
               onPress={() => handleAddToWatchList()}
               className="flex items-center justify-center gap-1"
             >
-              <Plus color={'white'} size={19} />
-              {/* <Check color={'white'} size={19} /> */}
+              {isWatchListMovie ? (
+                <Check color={'white'} size={20} />
+              ) : (
+                <Plus color={'white'} size={20} />
+              )}
               <Text className="text-white text-[0.7rem]">WatchList</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              className="flex items-center justify-center gap-1"
-            >
-              <Send color={'white'} size={19} />
+            <TouchableOpacity className="flex items-center justify-center gap-1">
+              <Send color={'white'} size={20} />
               <Text className="text-white text-[0.7rem]">Share</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => handleFavoriteToggle()}
-              className={`flex items-center justify-center gap-1 ${
-                isFavorite ? 'bg-red-500' : ''
-              }`}
+              className={`flex items-center justify-center gap-1 }`}
             >
-              <Heart color={'white'} size={19} />
+              <Heart color={`${isFavoriteMovie ? 'red' : 'white'}`} size={20} />
               <Text className="text-white text-[0.7rem]">Rate</Text>
             </TouchableOpacity>
           </View>

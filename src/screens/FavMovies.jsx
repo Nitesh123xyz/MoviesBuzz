@@ -17,8 +17,8 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 const { width: screenWidth } = Dimensions.get('window');
 const COLUMNS = 3;
 const GAP = 8;
-const ITEM_WIDTH = Math.floor((screenWidth - GAP * (COLUMNS + 1)) / COLUMNS);
-const ITEM_HEIGHT = Math.round(ITEM_WIDTH * 1.5);
+const ITEM_WIDTH = Math?.floor((screenWidth - GAP * (COLUMNS + 1)) / COLUMNS);
+const ITEM_HEIGHT = Math?.round(ITEM_WIDTH * 1.5);
 
 const FavMovies = () => {
   const [sortOrder, setSortOrder] = useState('desc');
@@ -84,7 +84,7 @@ const FavMovies = () => {
                   : BackUpCastImage,
               }}
               style={{ width: ITEM_WIDTH, height: ITEM_HEIGHT }}
-              resizeMode={FastImage.resizeMode.cover}
+              resizeMode={FastImage?.resizeMode.cover}
               onProgress={() => setLoading(true)}
               onLoadEnd={() => setLoading(false)}
               onError={() => setLoading(false)}
