@@ -2,8 +2,9 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useState } from 'react';
 import { IMAGE_BASE_URL } from '@env';
 import { BackUpCastImage } from '../utils/Backup';
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import { FlatList } from 'react-native-gesture-handler';
+import FastImage from '@d11/react-native-fast-image';
 const Cast = ({ navigation, Casts, loader }) => {
   const { cast: castMembers } = Casts || {};
   const [imageLoading, setImageLoading] = useState(false);

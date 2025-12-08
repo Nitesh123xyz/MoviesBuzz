@@ -15,8 +15,9 @@ import { IMAGE_BASE_URL } from '@env';
 import { useNavigation } from '@react-navigation/native';
 import { BackUpPosterImage } from '../utils/Backup';
 import { DateFormatter } from '../utils/Formatter';
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import FastImage from '@d11/react-native-fast-image';
 
 export default function SearchScreen() {
   const [q, setQ] = useState('');
@@ -176,14 +177,14 @@ export default function SearchScreen() {
 
   return (
     <>
-      <StatusBar barStyle="light-content" className="bg-neutral-900" />
-      <View style={{ paddingTop: insets.top }} className="p-5 bg-neutral-900">
-        <View className="flex-row items-center rounded-lg bg-neutral-900 px-1 border border-gray-600">
+      <StatusBar barStyle="light-content"/>
+      <View style={{ paddingTop: insets.top }} className="px-3 pb-2 mt-4">
+        <View className="flex-row items-center rounded-lg px-1 border border-gray-500">
           <TextInput
             value={q}
             onChangeText={setQ}
             placeholder="Search..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor="white"
             className="flex-1 text-white"
             returnKeyType="search"
             onSubmitEditing={onSubmitEditing}
@@ -204,7 +205,7 @@ export default function SearchScreen() {
         </View>
       </View>
 
-      <View className="flex-1 bg-neutral-900">
+      <View className="flex-1">
         <FlatList
           style={{ flex: 1 }}
           data={displayData}

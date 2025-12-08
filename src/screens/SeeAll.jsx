@@ -14,8 +14,9 @@ import {
 import { LayoutGrid, LayoutList } from 'lucide-react-native';
 import { IMAGE_BASE_URL } from '@env';
 import { DateFormatter } from '../utils/Formatter';
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import { BackUpPosterImage } from '../utils/Backup';
+import FastImage from '@d11/react-native-fast-image';
 
 const LAYOUTS = {
   LIST: 'LIST',

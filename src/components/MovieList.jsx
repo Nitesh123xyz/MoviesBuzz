@@ -8,10 +8,11 @@ import {
   FlatList,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import { IMAGE_BASE_URL } from '@env';
 import Rating from './Rating';
 import { BackUpPosterImage } from '../utils/Backup';
+import FastImage from '@d11/react-native-fast-image';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
