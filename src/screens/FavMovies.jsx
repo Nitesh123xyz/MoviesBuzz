@@ -6,14 +6,13 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Image,
 } from 'react-native';
-// import FastImage from 'react-native-fast-image';
 import { IMAGE_BASE_URL } from '@env';
 import { useGetFavoriteMoviesQuery } from '../features/movies';
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react-native';
 import { BackUpCastImage } from '../utils/Backup';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import FastImage from '@d11/react-native-fast-image';
 
 const { width: screenWidth } = Dimensions.get('window');
 const COLUMNS = 3;
@@ -78,17 +77,14 @@ const FavMovies = () => {
               />
             )}
 
-            <FastImage
+            <Image
               source={{
                 uri: !!item?.poster_path
                   ? `${IMAGE_BASE_URL}${item?.poster_path}`
                   : BackUpCastImage,
               }}
               style={{ width: ITEM_WIDTH, height: ITEM_HEIGHT }}
-              resizeMode={FastImage?.resizeMode.cover}
-              onProgress={() => setLoading(true)}
-              onLoadEnd={() => setLoading(false)}
-              onError={() => setLoading(false)}
+              resizeMode="cover"
             />
           </View>
 

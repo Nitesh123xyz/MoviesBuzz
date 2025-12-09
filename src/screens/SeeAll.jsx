@@ -6,6 +6,7 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import {
   useGetLatestMoviesQuery,
@@ -14,9 +15,7 @@ import {
 import { LayoutGrid, LayoutList } from 'lucide-react-native';
 import { IMAGE_BASE_URL } from '@env';
 import { DateFormatter } from '../utils/Formatter';
-// import FastImage from 'react-native-fast-image';
 import { BackUpPosterImage } from '../utils/Backup';
-import FastImage from '@d11/react-native-fast-image';
 
 const LAYOUTS = {
   LIST: 'LIST',
@@ -101,13 +100,11 @@ const SeeAll = ({ route, navigation }) => {
       onPress={() => navigation.navigate('MovieDetails', { movieId: item.id })}
       className="px-4 py-3 border-b border-gray-700 flex-row items-center bg-black"
     >
-      <FastImage
+      <Image
         source={{
           uri: item.poster_path
             ? `${IMAGE_BASE_URL}${item.poster_path}`
             : BackUpPosterImage,
-          priority: FastImage.priority.high,
-          cache: FastImage.cacheControl.immutable,
         }}
         style={{
           width: 100,
@@ -115,7 +112,7 @@ const SeeAll = ({ route, navigation }) => {
           borderRadius: 8,
           backgroundColor: '#111827',
         }}
-        resizeMode={FastImage.resizeMode.cover}
+        resizeMode="cover"
       />
       <View className="ml-3 flex-1">
         <Text className="text-white text-base font-semibold">
@@ -145,13 +142,11 @@ const SeeAll = ({ route, navigation }) => {
         className={`m-2 bg-black ${numColumns === 3 ? 'flex-1' : ''}`}
         style={numColumns === 3 ? { maxWidth: '31%' } : undefined}
       >
-        <FastImage
+        <Image
           source={{
             uri: item.poster_path
               ? `${IMAGE_BASE_URL}${item.poster_path}`
               : BackUpPosterImage,
-            priority: FastImage.priority.high,
-            cache: FastImage.cacheControl.immutable,
           }}
           style={{
             width: '100%',
@@ -159,7 +154,7 @@ const SeeAll = ({ route, navigation }) => {
             borderRadius: 8,
             backgroundColor: '#111827',
           }}
-          resizeMode={FastImage.resizeMode.cover}
+          resizeMode="cover"
         />
 
         <View className="mt-2 px-1">

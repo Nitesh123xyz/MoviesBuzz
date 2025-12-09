@@ -15,9 +15,7 @@ import { IMAGE_BASE_URL } from '@env';
 import { useNavigation } from '@react-navigation/native';
 import { BackUpPosterImage } from '../utils/Backup';
 import { DateFormatter } from '../utils/Formatter';
-// import FastImage from 'react-native-fast-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import FastImage from '@d11/react-native-fast-image';
 
 export default function SearchScreen() {
   const [q, setQ] = useState('');
@@ -135,14 +133,12 @@ export default function SearchScreen() {
           }}
           className="rounded-lg overflow-hidden"
         >
-          <FastImage
+          <Image
             source={{
               uri: poster,
-              priority: FastImage.priority.high,
-              cache: FastImage.cacheControl.immutable,
             }}
             style={{ width: '100%', height: '100%' }}
-            resizeMode={FastImage.resizeMode.cover}
+            resizeMode="cover"
           />
 
           <View className="absolute left-[6px] top-[6px] bg-sky-500 px-[6px] py-[2px] rounded-[4px]">
@@ -177,7 +173,7 @@ export default function SearchScreen() {
 
   return (
     <>
-      <StatusBar barStyle="light-content"/>
+      <StatusBar barStyle="light-content" />
       <View style={{ paddingTop: insets.top }} className="px-3 pb-2 mt-4">
         <View className="flex-row items-center rounded-lg px-1 border border-gray-500">
           <TextInput

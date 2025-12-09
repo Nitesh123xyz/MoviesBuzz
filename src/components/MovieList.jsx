@@ -6,13 +6,12 @@ import {
   TouchableOpacity,
   View,
   FlatList,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-// import FastImage from 'react-native-fast-image';
 import { IMAGE_BASE_URL } from '@env';
 import Rating from './Rating';
 import { BackUpPosterImage } from '../utils/Backup';
-import FastImage from '@d11/react-native-fast-image';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -28,11 +27,9 @@ const MovieCard = memo(function MovieCard({ item, onPress }) {
       style={{ marginHorizontal: 7.5 }}
     >
       <View style={{ width: screenWidth / 2 }}>
-        <FastImage
+        <Image
           source={{
             uri: imageUri !== null ? imageUri : BackUpPosterImage,
-            priority: FastImage.priority.high,
-            cache: FastImage.cacheControl.immutable,
           }}
           style={{
             width: screenWidth / 2,
@@ -42,7 +39,7 @@ const MovieCard = memo(function MovieCard({ item, onPress }) {
             backgroundColor: '#111827',
             position: 'relative',
           }}
-          resizeMode={FastImage.resizeMode.cover}
+          resizeMode="cover"
         />
 
         <View pointerEvents="none">

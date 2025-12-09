@@ -1,10 +1,14 @@
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, { useCallback, useState } from 'react';
 import { IMAGE_BASE_URL } from '@env';
 import { BackUpCastImage } from '../utils/Backup';
-// import FastImage from 'react-native-fast-image';
 import { FlatList } from 'react-native-gesture-handler';
-import FastImage from '@d11/react-native-fast-image';
 const Cast = ({ navigation, Casts, loader }) => {
   const { cast: castMembers } = Casts || {};
   const [imageLoading, setImageLoading] = useState(false);
@@ -34,18 +38,14 @@ const Cast = ({ navigation, Casts, loader }) => {
     >
       <View className="flex-col items-center mx-2">
         <View className="border-2 border-gray-400 rounded-full p-0.5">
-          <FastImage
+          <Image
             source={{
               uri: !!item?.profile_path
                 ? `${IMAGE_BASE_URL}${item?.profile_path}`
                 : BackUpCastImage,
-              priority: FastImage.priority.high,
-              cache: FastImage.cacheControl.immutable,
             }}
             style={{ width: 70, height: 70, borderRadius: 50 }}
-            resizeMode={FastImage.resizeMode.cover}
-            onProgress={startProgress}
-            onLoadEnd={endLoad}
+            resizeMode="cover"
           />
           {imageLoading && (
             <ActivityIndicator

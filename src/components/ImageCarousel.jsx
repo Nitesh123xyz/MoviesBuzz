@@ -1,13 +1,17 @@
 import React from 'react';
-import { View, Dimensions, Text, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  Dimensions,
+  Text,
+  TouchableWithoutFeedback,
+  Image,
+} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { useNavigation } from '@react-navigation/native';
 import { useGetAllTrendingMoviesQuery } from '../features/movies';
 import { IMAGE_BASE_URL } from '@env';
 import HomeSkeleton from './loaders/HomeSkeleton';
 import Rating from './Rating';
-import FastImage from '@d11/react-native-fast-image';
-// import FastImage from 'react-native-fast-image';
 const { width: screenWidth } = Dimensions.get('window');
 const posterRatio = 1.5;
 const carouselHeight = Math.round(screenWidth * posterRatio);
@@ -55,14 +59,12 @@ const MovieCard = ({ item, handleClick }) => {
   return (
     <TouchableWithoutFeedback onPress={() => handleClick(item)}>
       <View style={{ width: screenWidth, height: carouselHeight }}>
-        <FastImage
+        <Image
           source={{
             uri: `${IMAGE_BASE_URL}${item?.poster_path}`,
-            priority: FastImage?.priority.high,
-            cache: FastImage?.cacheControl.immutable,
           }}
           style={{ width: '100%', height: '100%', borderRadius: 16 }}
-          resizeMode={FastImage.resizeMode.cover}
+          resizeMode="cover"
         />
         <Rating RatingPer={item?.vote_average} Size={27} />
       </View>
