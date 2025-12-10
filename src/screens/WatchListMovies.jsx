@@ -80,7 +80,7 @@ const WatchListMovies = () => {
             <Image
               source={{
                 uri: !!item?.poster_path
-                  ? `${IMAGE_BASE_URL}${item?.poster_path}`
+                  ? `${IMAGE_BASE_URL}${item.poster_path}`
                   : BackUpCastImage,
               }}
               style={{ width: ITEM_WIDTH, height: ITEM_HEIGHT }}

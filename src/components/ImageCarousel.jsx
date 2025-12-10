@@ -61,7 +61,7 @@ const MovieCard = ({ item, handleClick }) => {
       <View style={{ width: screenWidth, height: carouselHeight }}>
         <Image
           source={{
-            uri: `${IMAGE_BASE_URL}${item?.poster_path}`,
+            uri: `${IMAGE_BASE_URL}${item.poster_path}`,
           }}
           style={{ width: '100%', height: '100%', borderRadius: 16 }}
           resizeMode="cover"

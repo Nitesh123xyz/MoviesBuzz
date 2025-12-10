@@ -17,7 +17,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const MovieCard = memo(function MovieCard({ item, onPress }) {
   const imageUri = item?.poster_path
-    ? `${IMAGE_BASE_URL}${item?.poster_path}`
+    ? `${IMAGE_BASE_URL}${item.poster_path}`
     : item?.backdrop_path ?? BackUpPosterImage;
 
   return (
