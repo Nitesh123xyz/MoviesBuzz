@@ -16,7 +16,7 @@ const { width: screenWidth } = Dimensions.get('window');
 const posterRatio = 1.5;
 const carouselHeight = Math.round(screenWidth * posterRatio);
 
-const ImageCarousel = () => {
+const ImageCarousel = ({ isDark }) => {
   const { data, isLoading } = useGetAllTrendingMoviesQuery();
   const { results } = data || {};
   const navigation = useNavigation();
@@ -28,8 +28,14 @@ const ImageCarousel = () => {
 
   return (
     <>
-      <View className="">
-        <Text className="text-lg font-bold ml-5 my-2 text-white">Trending</Text>
+      <View>
+        <Text
+          className={`text-lg font-bold ml-5 my-2 ${
+            isDark ? 'text-white' : 'text-black'
+          }`}
+        >
+          Trending
+        </Text>
         <View className="items-center">
           <Carousel
             loop
@@ -56,12 +62,16 @@ const ImageCarousel = () => {
 };
 
 const MovieCard = ({ item, handleClick }) => {
+  const imageUri =
+    item?.poster_path || item?.backdrop_path
+      ? `${IMAGE_BASE_URL}${item?.poster_path}`
+      : `${IMAGE_BASE_URL}${item?.backdrop_path}`;
   return (
     <TouchableWithoutFeedback onPress={() => handleClick(item)}>
       <View style={{ width: screenWidth, height: carouselHeight }}>
         <Image
           source={{
-            uri: `${IMAGE_BASE_URL}${item.poster_path}`,
+            uri: imageUri,
           }}
           style={{ width: '100%', height: '100%', borderRadius: 16 }}
           resizeMode="cover"

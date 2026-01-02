@@ -13,6 +13,7 @@ import { useGetFavoriteMoviesQuery } from '../features/movies';
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react-native';
 import { BackUpCastImage } from '../utils/Backup';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useColorScheme } from 'nativewind';
 
 const { width: screenWidth } = Dimensions.get('window');
 const COLUMNS = 3;
@@ -21,6 +22,8 @@ const ITEM_WIDTH = Math?.floor((screenWidth - GAP * (COLUMNS + 1)) / COLUMNS);
 const ITEM_HEIGHT = Math?.round(ITEM_WIDTH * 1.5);
 
 const FavMovies = () => {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [sortOrder, setSortOrder] = useState('desc');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
@@ -66,7 +69,9 @@ const FavMovies = () => {
       >
         <View style={{ width: ITEM_WIDTH }}>
           <View
-            className="bg-neutral-800 rounded-lg justify-center items-center overflow-hidden"
+            className={`${
+              isDark ? 'bg-neutral-800' : 'bg-neutral-200'
+            } rounded-lg justify-center items-center overflow-hidden`}
             style={{ width: ITEM_WIDTH, height: ITEM_HEIGHT }}
           >
             {loading && (
@@ -90,7 +95,7 @@ const FavMovies = () => {
 
           <Text
             numberOfLines={2}
-            className="text-white text-xs mt-1"
+            className={`${isDark ? 'text-white' : 'text-black'} text-xs mt-1`}
             style={{ width: ITEM_WIDTH }}
           >
             {item?.title ?? item?.name}
@@ -109,20 +114,26 @@ const FavMovies = () => {
   }
 
   return (
-    <View className="flex-1 bg-neutral-900">
+    <View className={`flex-1 ${isDark ? 'bg-neutral-800' : 'bg-white'}`}>
       <View className="flex-row items-center justify-between p-3">
-        <Text className="text-white text-[1.3rem]">Favorite</Text>
+        <Text
+          className={`${isDark ? 'text-white' : 'text-black'} text-[1.3rem]`}
+        >
+          Favorite
+        </Text>
 
         <View className="flex-row items-center space-x-2">
           <TouchableOpacity
             onPress={toggleSort}
-            className="bg-white/10 rounded-md p-2 ml-2"
+            className={`${
+              isDark ? 'bg-white/20' : 'bg-black/10'
+            } rounded-md p-2 ml-2`}
             accessibilityLabel="Toggle sort"
           >
             {sortOrder === 'asc' ? (
-              <ArrowDownUp color={'white'} />
+              <ArrowDownUp color={isDark ? 'white' : 'black'} />
             ) : (
-              <ArrowUpDown color={'white'} />
+              <ArrowUpDown color={isDark ? 'white' : 'black'} />
             )}
           </TouchableOpacity>
         </View>

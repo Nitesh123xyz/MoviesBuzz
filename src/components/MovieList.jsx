@@ -12,13 +12,17 @@ import { useNavigation } from '@react-navigation/native';
 import { IMAGE_BASE_URL } from '@env';
 import Rating from './Rating';
 import { BackUpPosterImage } from '../utils/Backup';
+import { useColorScheme } from 'nativewind';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const MovieCard = memo(function MovieCard({ item, onPress }) {
-  const imageUri = item?.poster_path
-    ? `${IMAGE_BASE_URL}${item.poster_path}`
-    : item?.backdrop_path ?? BackUpPosterImage;
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const imageUri =
+    item?.poster_path || item?.backdrop_path
+      ? `${IMAGE_BASE_URL}${item?.poster_path}`
+      : `${IMAGE_BASE_URL}${item?.backdrop_path}`;
 
   return (
     <TouchableOpacity
@@ -48,7 +52,11 @@ const MovieCard = memo(function MovieCard({ item, onPress }) {
 
         <Text
           numberOfLines={1}
-          style={{ color: '#cbd5e1', marginTop: 8, width: screenWidth / 2 }}
+          style={{
+            color: isDark ? 'white' : 'black',
+            marginTop: 8,
+            width: screenWidth / 2,
+          }}
         >
           {item?.title || item?.name}
         </Text>
@@ -57,7 +65,13 @@ const MovieCard = memo(function MovieCard({ item, onPress }) {
   );
 });
 
-const MovieList = ({ title, MoviesApi, loader, hideSeeAll = false }) => {
+const MovieList = ({
+  title,
+  MoviesApi,
+  loader,
+  isDark,
+  hideSeeAll = false,
+}) => {
   const { results, cast } = MoviesApi || {};
   const Results = results || cast || [];
   const navigation = useNavigation();
@@ -98,10 +112,14 @@ const MovieList = ({ title, MoviesApi, loader, hideSeeAll = false }) => {
           alignItems: 'center',
         }}
       >
-        <Text style={{ color: 'white', fontSize: 18 }}>{title}</Text>
+        <Text style={{ color: isDark ? 'white' : 'black', fontSize: 18 }}>
+          {title}
+        </Text>
         {!hideSeeAll && (
           <TouchableOpacity onPress={handleSeeAll}>
-            <Text style={{ color: '#9CA3AF', fontSize: 16 }}>See All</Text>
+            <Text style={{ color: isDark ? 'white' : 'black', fontSize: 15 }}>
+              See All
+            </Text>
           </TouchableOpacity>
         )}
       </View>

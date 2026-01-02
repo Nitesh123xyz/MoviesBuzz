@@ -1,4 +1,3 @@
-// src/navigation/HomeStack.js
 import React, { lazy, Suspense } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -16,7 +15,7 @@ const HomeStackNavigation = () => {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          cardStyle: { backgroundColor: '#262626' },
+          // cardStyle: { backgroundColor: '#262626' },
           gestureEnabled: true,
           animation: 'fade',
         }}
