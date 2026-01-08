@@ -7,7 +7,6 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
   ToastAndroid,
   ActivityIndicator,
   StatusBar,
@@ -18,7 +17,6 @@ import { IMAGE_BASE_URL } from '@env';
 import { BackUpPosterImage } from '../utils/Backup';
 import {
   useAddFavoriteMoviesMutation,
-  useAddWatchListMoviesMutation,
   useGetCastQuery,
   useGetFavoriteMoviesQuery,
   useGetMovieDetailsQuery,
@@ -28,11 +26,17 @@ import {
 import MovieList from '../components/MovieList';
 import { DateFormatter, TimerFormatter } from '../utils/Formatter';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useProtectedAction } from '../utils/UserAuth';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
+import { useColorScheme } from 'nativewind';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const DetailsScreen = ({ route, navigation }) => {
   const { movieId } = route?.params;
-
+  const performAction = useProtectedAction();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   // -----------------------------------------
 
   const { data: MoviesDetails, isLoading } = useGetMovieDetailsQuery(movieId);
@@ -59,7 +63,7 @@ const DetailsScreen = ({ route, navigation }) => {
   // ----------------------------------------
 
   const [addFavoriteMovies] = useAddFavoriteMoviesMutation();
-  const [addWatchListMovies] = useAddWatchListMoviesMutation();
+
   let PosterImage = '';
   if (isLoading) {
     return (
@@ -88,18 +92,36 @@ const DetailsScreen = ({ route, navigation }) => {
     );
   };
 
-  const handleAddToWatchList = async () => {
-    const favData = {
-      media_type: 'movie',
-      media_id: movieId,
-      watchlist: isWatchListMovie ? false : true,
-    };
-    const { data } = await addWatchListMovies(favData);
-    const { success, status_message } = data || {};
-    if (success) {
-      WatchListMoviesRefetch();
-      showToastWithGravity(status_message);
-    }
+  const handleAddToWatchList = async MovieInfo => {
+    console.log(MovieInfo);
+    performAction(async () => {
+      const uid = auth().currentUser.uid;
+
+      try {
+        await firestore()
+          .collection('users')
+          .doc(uid)
+          .collection('WatchList')
+          .doc(String(MovieInfo?.id)) // Fix: TMDB uses 'id', not 'movieId'
+          .set({
+            movieId: MovieInfo?.id, // Fix: Ensure this isn't undefined
+            title: MovieInfo?.title || 'Unknown Title',
+            poster_path: MovieInfo?.poster_path || '',
+            watchlist: !isWatchListMovie,
+            // addedAt: firestore.FieldValue.serverTimestamp(),
+          });
+
+        showToastWithGravity(
+          isWatchListMovie ? 'Removed from Watchlist' : 'Added to Watchlist',
+        );
+
+        // Refetch your list so the UI updates the icon
+        WatchListMoviesRefetch();
+      } catch (error) {
+        console.error('Firestore Error: ', error);
+        showToastWithGravity('Error', 'Could not update watchlist');
+      }
+    });
   };
 
   const handleFavoriteToggle = async () => {
@@ -118,24 +140,28 @@ const DetailsScreen = ({ route, navigation }) => {
 
   return (
     <>
-      <StatusBar barStyle="light-content" className="bg-neutral-800" />
+      <StatusBar
+        barStyle={`${isDark ? 'light-content' : 'dark-content'}`}
+        className={`${isDark ? 'bg-black' : 'bg-white'}`}
+      />
       <ScrollView
-        className="flex-1 bg-neutral-900"
+        className={`flex-1 ${isDark ? 'bg-black' : 'bg-white'}`}
         showsVerticalScrollIndicator={false}
         style={{ paddingTop: insets.top }}
       >
-        <View className="w-full">
-          {/* Poster with Gradient */}
-          <View className="mb-5">
+        <View className="w-full px-1.5 mt-2">
+          <View className={`mb-5 overflow-hidden rounded-2xl`}>
             <ImageBackground
               source={{
                 uri: PosterImage,
               }}
               style={{
-                width: screenWidth,
+                width: '100%',
                 height: screenHeight * 0.3,
                 justifyContent: 'flex-end',
               }}
+              imageStyle={{ borderRadius: 16 }}
+              className="rounded-2xl"
               resizeMode="cover"
             >
               <LinearGradient
@@ -143,7 +169,11 @@ const DetailsScreen = ({ route, navigation }) => {
                 start={{ x: 0, y: 1 }}
                 end={{ x: 0, y: 0 }}
                 style={{
-                  ...StyleSheet.absoluteFillObject,
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
                 }}
               />
             </ImageBackground>
@@ -153,24 +183,38 @@ const DetailsScreen = ({ route, navigation }) => {
         <View className="px-2">
           <Text
             numberOfLines={1}
-            className="text-xl text-center font-bold text-white"
+            className={`text-xl text-center font-bold ${
+              isDark ? 'text-white' : 'text-black'
+            }`}
           >
             {MoviesDetails?.title}
           </Text>
 
           <View className="w-full flex-row items-center justify-center mt-5 gap-2 rounded-lg px-2">
-            <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
-              <Text className="text-white text-[0.85rem]">
+            <View className="border-r-[1px] border-r-neutral-400 px-2 items-center">
+              <Text
+                className={`${
+                  isDark ? 'text-white' : 'text-black'
+                } text-[0.85rem]`}
+              >
                 {DateFormatter(MoviesDetails?.release_date)}
               </Text>
             </View>
-            <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
-              <Text className="text-white text-[0.85rem]">
+            <View className="border-r-[1px] border-r-neutral-400 px-2 items-center">
+              <Text
+                className={`${
+                  isDark ? 'text-white' : 'text-black'
+                } text-[0.85rem]`}
+              >
                 {TimerFormatter(MoviesDetails?.runtime)}
               </Text>
             </View>
-            <View className="border-r-[1px] border-r-neutral-200 px-2 items-center">
-              <Text className="text-[0.85rem] text-white">
+            <View className="border-r-[1px] border-r-neutral-400 px-2 items-center">
+              <Text
+                className={`text-[0.85rem] ${
+                  isDark ? 'text-white' : 'text-black'
+                }`}
+              >
                 {MoviesDetails?.spoken_languages?.length > 2
                   ? MoviesDetails?.spoken_languages?.length + ' Languages'
                   : MoviesDetails?.spoken_languages
@@ -178,14 +222,22 @@ const DetailsScreen = ({ route, navigation }) => {
                       .join(', ')}
               </Text>
             </View>
-            <Text className="text-[0.85rem] text-neutral-200">
-              <Text className="text-white">Adult : </Text>
+            <Text
+              className={`text-[0.85rem] ${
+                isDark ? 'text-white' : 'text-black'
+              }`}
+            >
+              <Text className={'text-red-500'}>Adult : </Text>
               {MoviesDetails?.adult ? 'Yes' : 'No'}
             </Text>
           </View>
 
           <View className="w-full my-5">
-            <Text className="text-[0.85rem] text-center text-neutral-200">
+            <Text
+              className={`text-[0.85rem] text-center ${
+                isDark ? 'text-white' : 'text-black'
+              }`}
+            >
               {MoviesDetails?.genres?.map(g => g.name).join(' | ')}
             </Text>
           </View>
@@ -193,34 +245,59 @@ const DetailsScreen = ({ route, navigation }) => {
           <Text
             allowFontScaling={false}
             numberOfLines={8}
-            className="text-[0.84rem] leading-5 text-neutral-400"
+            className={`text-[0.84rem] leading-5 ${
+              isDark ? 'text-neutral-300' : 'text-neutral-500'
+            }`}
           >
             {MoviesDetails?.overview}
           </Text>
 
           <View className="w-full flex-row items-center justify-between px-4 my-8">
             <TouchableOpacity
-              onPress={() => handleAddToWatchList()}
+              onPress={() => handleAddToWatchList(MoviesDetails)}
               className="flex items-center justify-center gap-1"
             >
               {isWatchListMovie ? (
-                <Check color={'white'} size={20} />
+                <Check color={isDark ? 'white' : 'black'} size={20} />
               ) : (
-                <Plus color={'white'} size={20} />
+                <Plus color={isDark ? 'white' : 'black'} size={20} />
               )}
-              <Text className="text-white text-[0.7rem]">WatchList</Text>
+              <Text
+                className={`${
+                  isDark ? 'text-white' : 'text-black'
+                } text-[0.7rem]`}
+              >
+                WatchList
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity className="flex items-center justify-center gap-1">
-              <Send color={'white'} size={20} />
-              <Text className="text-white text-[0.7rem]">Share</Text>
+              <Send color={isDark ? 'white' : 'black'} size={20} />
+              <Text
+                className={`${
+                  isDark ? 'text-white' : 'text-black'
+                } text-[0.7rem]`}
+              >
+                Share
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => handleFavoriteToggle()}
               className={`flex items-center justify-center gap-1 }`}
             >
-              <Heart color={`${isFavoriteMovie ? 'red' : 'white'}`} size={20} />
-              <Text className="text-white text-[0.7rem]">Rate</Text>
+              <Heart
+                color={`${
+                  isFavoriteMovie ? 'red' : isDark ? 'white' : 'black'
+                }`}
+                size={20}
+              />
+              <Text
+                className={`${
+                  isDark ? 'text-white' : 'text-black'
+                } text-[0.7rem]`}
+              >
+                Rate
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -235,7 +312,9 @@ const DetailsScreen = ({ route, navigation }) => {
               title="Similar Movies"
               MoviesApi={SimilarMovies}
               loader={SimilarMoviesLoading}
+              isDark={isDark}
               hideSeeAll={true}
+              actionType="push"
             />
           )}
         </View>

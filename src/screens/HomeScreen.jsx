@@ -1,6 +1,11 @@
-import { ScrollView, StatusBar, Text, View } from 'react-native';
+import {
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React from 'react';
-import { Search } from 'lucide-react-native';
 import ImageCarousel from '../components/ImageCarousel';
 import MovieList from '../components/MovieList';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +15,7 @@ import {
   useGetUpcomingMoviesQuery,
 } from '../features/movies';
 import { useColorScheme } from 'nativewind';
+
 const HomeScreen = () => {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -22,30 +28,35 @@ const HomeScreen = () => {
   return (
     <>
       <StatusBar
-        barStyle="light-content"
-        className={`${isDark ? 'bg-neutral-800' : 'bg-white'}`}
+        barStyle={`${isDark ? 'light-content' : 'dark-content'}`}
+        className={`${isDark ? 'bg-black' : 'bg-white'}`}
       />
       <View
         style={{ paddingTop: insets.top }}
-        className={`flex-1 ${isDark ? 'bg-neutral-800' : 'bg-white'}`}
+        className={`flex-1 ${isDark ? 'bg-black' : 'bg-white'}`}
       >
         <View className="px-1">
           <View className="flex-row items-center justify-between mx-3 py-1">
             <Text
-              className={`text-2xl ${isDark ? 'text-white' : 'text-black'}`}
+              className={`text-3xl ${isDark ? 'text-white' : 'text-black'}`}
             >
-              GamesBuzz
+              Movies Buzz
             </Text>
-            <Search
-              onPress={() => navigation.navigate('Search')}
-              color={`${isDark ? 'white' : 'black'}`}
-              // className={`${isDark ? 'bg-white' : 'bg-black'} p-1`}
-            />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('SignUp')}
+              className={`${
+                isDark ? 'bg-white/20' : 'bg-black/10'
+              } p-2.5 rounded-lg`}
+            >
+              <Text className={`${isDark ? 'text-white' : 'text-black'}`}>
+                Sign in
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          // contentContainerStyle={{ paddingBottom: 20 }}
         >
           <ImageCarousel isDark={isDark} />
 

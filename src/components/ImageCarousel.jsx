@@ -30,7 +30,7 @@ const ImageCarousel = ({ isDark }) => {
     <>
       <View>
         <Text
-          className={`text-lg font-bold ml-5 my-2 ${
+          className={`text-[1.3rem] ml-5 my-2 ${
             isDark ? 'text-white' : 'text-black'
           }`}
         >

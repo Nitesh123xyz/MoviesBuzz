@@ -9,10 +9,12 @@ import React, { useCallback, useState } from 'react';
 import { IMAGE_BASE_URL } from '@env';
 import { BackUpCastImage } from '../utils/Backup';
 import { FlatList } from 'react-native-gesture-handler';
+import { useColorScheme } from 'nativewind';
 const Cast = ({ navigation, Casts, loader }) => {
   const { cast: castMembers } = Casts || {};
   const [imageLoading, setImageLoading] = useState(false);
-
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   if (loader) {
     return (
       <>
@@ -34,7 +36,7 @@ const Cast = ({ navigation, Casts, loader }) => {
   }, []);
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('Person', { castId: item?.id })}
+      onPress={() => navigation.navigate('PersonScreen', { castId: item?.id })}
     >
       <View className="flex-col items-center mx-2">
         <View className="border-2 border-gray-400 rounded-full p-0.5">
@@ -58,7 +60,9 @@ const Cast = ({ navigation, Casts, loader }) => {
 
         <Text
           numberOfLines={2}
-          className="text-white text-center mt-2 text-xs w-16 truncate"
+          className={` ${
+            isDark ? 'text-white' : 'text-black'
+          } text-center mt-2 text-xs w-16 truncate`}
         >
           {item?.name}
         </Text>
@@ -68,7 +72,11 @@ const Cast = ({ navigation, Casts, loader }) => {
 
   return (
     <>
-      <Text className="text-white text-lg mx-4 mb-2">Top Cast</Text>
+      <Text
+        className={` ${isDark ? 'text-white' : 'text-black'} text-lg mx-4 mb-2`}
+      >
+        Top Cast
+      </Text>
       <FlatList
         data={castMembers}
         keyExtractor={item => item?.id.toString()}

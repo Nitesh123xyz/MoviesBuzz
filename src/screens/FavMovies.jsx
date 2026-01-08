@@ -107,17 +107,21 @@ const FavMovies = () => {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-neutral-900">
-        <ActivityIndicator size="large" color="white" />
+      <View
+        className={`flex-1 justify-center items-center ${
+          isDark ? 'bg-neutral-800' : 'bg-neutral-100'
+        }`}
+      >
+        <ActivityIndicator size="large" color={isDark ? 'black' : 'white'} />
       </View>
     );
   }
 
   return (
-    <View className={`flex-1 ${isDark ? 'bg-neutral-800' : 'bg-white'}`}>
+    <View className={`flex-1 ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`}>
       <View className="flex-row items-center justify-between p-3">
         <Text
-          className={`${isDark ? 'text-white' : 'text-black'} text-[1.3rem]`}
+          className={`${isDark ? 'text-black' : 'text-white'} text-[1.3rem]`}
         >
           Favorite
         </Text>

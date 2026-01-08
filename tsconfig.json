@@ -1,12 +1,16 @@
 {
   "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@env": ["./src/env.ts"]
+    }
+  },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "nativewind-env.d.ts"
-  ],
-  "exclude": [
-    "**/node_modules",
-    "**/Pods"
-  ]
+    "nativewind-env.d.ts",
+    "src/screens/SignUp.tsx"
+, "src/screens/SearchScreen.jsx"  ],
+  "exclude": ["**/node_modules", "**/Pods"]
 }
