@@ -7,9 +7,12 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from 'src/types/RootStackParamList';
 
-const Login = ({ navigation }) => {
+const Login = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,21 +35,24 @@ const Login = ({ navigation }) => {
       Alert.alert('Success', 'Logged in successfully!');
       // Navigate to your Home/Watchlist screen here
     } catch (error) {
-      console.log('Login Error:', error.code, error.message);
+      const firebaseError = error as FirebaseAuthTypes.NativeFirebaseAuthError;
+      if (error instanceof Error) {
+        console.log('Login Error:', firebaseError.code, error.message);
 
-      // Better error messages for the user
-      if (
-        error.code === 'auth/user-not-found' ||
-        error.code === 'auth/wrong-password'
-      ) {
-        Alert.alert(
-          'Invalid Credentials',
-          'The email or password you entered is incorrect.',
-        );
-      } else if (error.code === 'auth/invalid-email') {
-        Alert.alert('Error', 'That email address is invalid.');
-      } else {
-        Alert.alert('Error', error.message);
+        // Better error messages for the user
+        if (
+          firebaseError.code === 'auth/user-not-found' ||
+          firebaseError.code === 'auth/wrong-password'
+        ) {
+          Alert.alert(
+            'Invalid Credentials',
+            'The email or password you entered is incorrect.',
+          );
+        } else if (firebaseError.code === 'auth/invalid-email') {
+          Alert.alert('Error', 'That email address is invalid.');
+        } else {
+          Alert.alert('Error', error.message);
+        }
       }
     } finally {
       setLoading(false);

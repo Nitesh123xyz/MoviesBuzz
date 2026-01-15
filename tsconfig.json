@@ -10,7 +10,8 @@
     "**/*.ts",
     "**/*.tsx",
     "nativewind-env.d.ts",
-    "src/screens/SignUp.tsx"
-, "src/screens/SearchScreen.jsx"  ],
+    "src/screens/SignUp.tsx",
+    "src/screens/SearchScreen.tsx"
+  ],
   "exclude": ["**/node_modules", "**/Pods"]
 }

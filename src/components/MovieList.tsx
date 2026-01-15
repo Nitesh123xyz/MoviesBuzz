@@ -14,15 +14,9 @@ import Rating from './Rating';
 import { BackUpPosterImage } from '../utils/Backup';
 import { useColorScheme } from 'nativewind';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from 'src/types/RootStackParamList';
 
-type RootStackParamList = {
-  SeeAll: { title: string };
-  MovieDetails: { movieId: number };
-};
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
-// -----------------------------------------------
-//  typeScript
+// ------------------------------------------------
 
 interface MovieItem {
   id: number;
@@ -47,7 +41,9 @@ interface MovieCardProps {
   onPress: (id: number) => void;
 }
 
-// -----------------------------------------------
+// ------------------------------------------------
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+// ------------------------------------------------
 
 const MovieCard = memo(function MovieCard({ item, onPress }: MovieCardProps) {
   const { colorScheme } = useColorScheme();
@@ -102,7 +98,6 @@ const MovieList = ({
   title,
   MoviesApi,
   loader,
-  // isDark,
   hideSeeAll = false,
   actionType = 'navigate',
 }: MovieListProps) => {
@@ -160,7 +155,9 @@ const MovieList = ({
         </Text>
         {!hideSeeAll && (
           <TouchableOpacity
-            className={`${isDark ? 'bg-white/20' : 'bg-black/20'} p-2 rounded-md`}
+            className={`${
+              isDark ? 'bg-white/20' : 'bg-black/20'
+            } p-2 rounded-md`}
             onPress={handleSeeAll}
           >
             <Text style={{ color: isDark ? 'white' : 'black', fontSize: 10 }}>

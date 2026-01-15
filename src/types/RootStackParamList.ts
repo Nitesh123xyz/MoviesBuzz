@@ -1,12 +1,14 @@
 export type RootStackParamList = {
   TabNavigator: undefined;
   HomeMain: undefined;
-  MovieDetails: { movieId: string };
-  PersonScreen: { castId: string };
+  DetailsScreen: { movieId: string | number };
+  MovieDetails: { movieId: string | number };
+  PersonScreen: { castId: string | number };
+  Cast: undefined;
   Favorite: undefined;
   Library: undefined;
   Search: undefined;
-  SeeAll: undefined;
+  SeeAll: { title: string | number };
   SignUp: undefined;
   Login: undefined;
 };

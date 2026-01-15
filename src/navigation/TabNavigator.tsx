@@ -32,7 +32,7 @@ function SearchStack() {
       }}
     >
       <Stack.Screen name="Search" component={SearchScreen} />
-      <Stack.Screen name="MovieDetails" component={DetailsScreen} />
+      <Stack.Screen name="DetailsScreen" component={DetailsScreen} />
       <Stack.Screen name="PersonScreen" component={PersonScreen} />
     </Stack.Navigator>
   );
@@ -48,7 +48,7 @@ function FavoriteStack() {
       }}
     >
       <Stack.Screen name="Favorite" component={FavMovies} />
-      <Stack.Screen name="MovieDetails" component={DetailsScreen} />
+      <Stack.Screen name="DetailsScreen" component={DetailsScreen} />
       <Stack.Screen name="PersonScreen" component={PersonScreen} />
     </Stack.Navigator>
   );
@@ -64,7 +64,7 @@ function LibraryStack() {
       }}
     >
       <Stack.Screen name="Library" component={WatchListMovies} />
-      <Stack.Screen name="MovieDetails" component={DetailsScreen} />
+      <Stack.Screen name="DetailsScreen" component={DetailsScreen} />
       <Stack.Screen name="PersonScreen" component={PersonScreen} />
     </Stack.Navigator>
   );

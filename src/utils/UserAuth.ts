@@ -1,11 +1,12 @@
 import { Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from 'src/types/RootStackParamList';
 
 export const useProtectedAction = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const performAction = actionCallback => {
+  const performAction = (actionCallback: () => void) => {
     const user = auth().currentUser;
 
     if (user) {

@@ -2,21 +2,19 @@ import React, { useRef } from 'react';
 import {
   View,
   Text,
-  Image,
   Pressable,
   Animated,
   Alert,
   TouchableOpacity,
 } from 'react-native';
 import { useColorScheme } from 'nativewind';
-import auth from '@react-native-firebase/auth'; // Import Auth
+import auth from '@react-native-firebase/auth';
 import { LogOut } from 'lucide-react-native';
 
 const Profile = () => {
   const { colorScheme, setColorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  // Get current logged in user details
   const user = auth().currentUser;
 
   // Animated value (no useEffect)
@@ -43,7 +41,7 @@ const Profile = () => {
           try {
             await auth().signOut(); // Clears session
           } catch (error) {
-            Alert.alert('Error', error.message);
+            if (error instanceof Error) Alert.alert('Error', error.message);
           }
         },
       },

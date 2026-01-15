@@ -13,8 +13,25 @@ import auth from '@react-native-firebase/auth';
 import { IMAGE_BASE_URL } from '@env';
 import { ArrowDownUp, ArrowUpDown, Grid2X2, List } from 'lucide-react-native';
 import { BackUpCastImage } from '../utils/Backup';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {
+  NavigationProp,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import { useColorScheme } from 'nativewind';
+import { RootStackParamList } from 'src/types/RootStackParamList';
+
+// ------------------------------------
+
+interface WatchListMoviesProps {
+  id: number | string;
+  title: string;
+  name?: string;
+  poster_path: string | null;
+  release_date?: string;
+}
+
+// ------------------------------------
 
 /* ---------------- CONSTANTS ---------------- */
 const { width } = Dimensions.get('window');
@@ -27,12 +44,12 @@ const GRID_ITEM_HEIGHT = Math.round(GRID_ITEM_WIDTH * 1.5);
 const WatchListMovies = () => {
   // ✅ CORRECT NativeWind usage (NO destructuring)
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme?.colorScheme === 'dark';
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const [uid, setUid] = useState(null);
-  const [movies, setMovies] = useState([]);
+  const [uid, setUid] = useState<string | null>(null);
+  const [movies, setMovies] = useState<WatchListMoviesProps[]>([]);
   const [sortOrder, setSortOrder] = useState('desc');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
   const [loading, setLoading] = useState(true);
@@ -72,10 +89,13 @@ const WatchListMovies = () => {
       .collection('WatchList')
       .onSnapshot(
         snap => {
-          const list = snap.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+          const list = snap.docs.map(
+            doc =>
+              ({
+                id: doc.id,
+                ...doc.data(),
+              } as WatchListMoviesProps),
+          );
           setMovies(list);
           setLoading(false);
           setRefreshing(false);
@@ -107,7 +127,7 @@ const WatchListMovies = () => {
   };
 
   /* ---------------- GRID ITEM ---------------- */
-  const renderGridItem = ({ item }) => (
+  const renderGridItem = ({ item }: { item: WatchListMoviesProps }) => (
     <TouchableOpacity
       style={{ marginLeft: GAP, marginTop: GAP }}
       onPress={() => navigation.navigate('MovieDetails', { movieId: item.id })}
@@ -136,7 +156,7 @@ const WatchListMovies = () => {
   );
 
   /* ---------------- LIST ITEM ---------------- */
-  const renderListItem = ({ item }) => (
+  const renderListItem = ({ item }: { item: WatchListMoviesProps }) => (
     <TouchableOpacity
       className={`flex-row p-3 ${theme.card}`}
       onPress={() => navigation.navigate('MovieDetails', { movieId: item.id })}

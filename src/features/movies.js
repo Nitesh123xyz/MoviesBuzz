@@ -28,16 +28,12 @@ export const MoviesSlice = createApi({
     }),
 
     getUpcomingMovies: builder.query({
-      query: Paginate =>
-        `https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=${
-          Paginate ?? 1
-        }?api_key=${API_KEY}`,
+      query: (page = 1) =>
+        `https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=${page}?api_key=${API_KEY}`,
     }),
     getLatestMovies: builder.query({
-      query: Paginate =>
-        `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=${
-          Paginate ?? 1
-        }?api_key=${API_KEY}`,
+      query: (page = 1) =>
+        `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=${page}?api_key=${API_KEY}`,
     }),
     getMovieDetails: builder.query({
       query: id =>
