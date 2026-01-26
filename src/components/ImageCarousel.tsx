@@ -5,12 +5,12 @@ import {
   Text,
   TouchableWithoutFeedback,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useGetAllTrendingMoviesQuery } from '../features/movies';
 import { IMAGE_BASE_URL } from '@env';
-import HomeSkeleton from './loaders/HomeSkeleton';
 import Rating from './Rating';
 import { RootStackParamList } from 'src/types/RootStackParamList';
 
@@ -44,10 +44,18 @@ const ImageCarousel = ({ isDark }: { isDark: boolean | string }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleClick = (item: { id: string }) => {
-    navigation.navigate('MovieDetails', { movieId: item?.id });
+    navigation.navigate('DetailsScreen', { movieId: item?.id });
   };
 
-  if (isLoading) return <HomeSkeleton />;
+  if (isLoading) {
+    return (
+      <>
+        <View className="flex-1 h-screen justify-center items-center">
+          <ActivityIndicator size={35} color="#000" />
+        </View>
+      </>
+    );
+  }
 
   return (
     <>

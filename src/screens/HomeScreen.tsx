@@ -26,8 +26,6 @@ const HomeScreen = () => {
   const { data: upcoming, isLoading: upcomingLoading } =
     useGetUpcomingMoviesQuery(1);
 
-  console.log(upcoming, latest);
-
   return (
     <>
       <StatusBar

@@ -1,34 +1,41 @@
-import React, { useRef, useEffect } from 'react';
-import { Dimensions, View, Animated, StyleSheet, Platform } from 'react-native';
+import { useColorScheme } from 'nativewind';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
+/* -------------------- Shimmer Block -------------------- */
 const ShimmerBlock = ({
   blockWidth,
   blockHeight,
-  borderRadius = 6,
-  speed = 1000,
+  borderRadius = 8,
+  speed = 1200,
   style,
 }) => {
-  const shimmer = useRef(new Animated.Value(0)).current;
+  const progress = useSharedValue(0);
   const numericWidth = typeof blockWidth === 'number' ? blockWidth : width;
 
   useEffect(() => {
-    const loop = Animated.loop(
-      Animated.timing(shimmer, {
-        toValue: 1,
-        duration: speed,
-        useNativeDriver: true,
-      }),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [shimmer, speed]);
+    progress.value = withRepeat(withTiming(1, { duration: speed }), -1, false);
+  }, []);
 
-  const translateX = shimmer.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-numericWidth, numericWidth],
+  const animatedStyle = useAnimatedStyle(() => {
+    const translateX = interpolate(
+      progress.value,
+      [0, 1],
+      [-numericWidth, numericWidth],
+    );
+    return {
+      transform: [{ translateX }],
+    };
   });
 
   return (
@@ -38,20 +45,21 @@ const ShimmerBlock = ({
           width: blockWidth,
           height: blockHeight,
           borderRadius,
-          overflow: 'hidden',
           backgroundColor: '#2d2d2d',
+          overflow: 'hidden',
         },
         style,
       ]}
     >
       <Animated.View
         style={[
-          StyleSheet.absoluteFill,
           {
-            transform: [{ translateX }],
             width: numericWidth * 2,
+            height: '100%',
+            position: 'absolute',
             left: -numericWidth,
           },
+          animatedStyle,
         ]}
         pointerEvents="none"
       >
@@ -59,11 +67,11 @@ const ShimmerBlock = ({
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
           colors={[
-            'rgba(255,255,255,0.02)',
-            '#6b7280',
-            'rgba(255,255,255,0.02)',
+            'rgba(255,255,255,0.04)',
+            'rgba(255,255,255,0.18)',
+            'rgba(255,255,255,0.04)',
           ]}
-          locations={[0.15, 0.5, 0.85]}
+          locations={[0.2, 0.5, 0.8]}
           style={{ flex: 1 }}
         />
       </Animated.View>
@@ -71,150 +79,98 @@ const ShimmerBlock = ({
   );
 };
 
-const ProfileDetailsSkeleton = () => {
+/* -------------------- Details Skeleton -------------------- */
+const DetailsSkeleton = () => {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   return (
-    <View style={styles.container}>
-      {/* Header row (two circular buttons) */}
-      <View style={[styles.row, { justifyContent: 'space-between' }]}>
-        <ShimmerBlock blockWidth={40} blockHeight={40} borderRadius={20} />
-        <ShimmerBlock blockWidth={40} blockHeight={40} borderRadius={20} />
-      </View>
-
-      {/* Avatar */}
-      <View style={[styles.center, { marginTop: 16 }]}>
-        <ShimmerBlock blockWidth={200} blockHeight={200} borderRadius={100} />
-      </View>
-
-      {/* Name */}
-      <View style={[styles.center, { marginTop: 12 }]}>
+    <View
+      style={styles.container}
+      className={`${isDark ? 'bg-black' : 'bg-white'}`}
+    >
+      {/* Poster */}
+      <View className="flex-row justify-between mt-2">
         <ShimmerBlock
-          blockWidth={Math.round(width * 0.6)}
-          blockHeight={24}
-          borderRadius={6}
+          blockWidth={40}
+          blockHeight={40}
+          style={{ borderRadius: 80 }}
+        />
+        <ShimmerBlock
+          blockWidth={40}
+          blockHeight={40}
+          style={{ borderRadius: 80 }}
         />
       </View>
-
-      {/* location / deathday */}
-      <View style={[styles.center, { marginTop: 12 }]}>
-        <ShimmerBlock blockWidth={Math.round(width * 0.5)} blockHeight={14} />
-        <View style={{ height: 8 }} />
-        <ShimmerBlock blockWidth={Math.round(width * 0.35)} blockHeight={14} />
-      </View>
-
-      {/* Info pills row */}
-      <View
-        style={{ marginTop: 16, paddingHorizontal: 8, alignItems: 'center' }}
-      >
-        <View
-          style={{
-            width: width - 32,
-            height: 56,
-            borderRadius: 28,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-around',
-            overflow: 'hidden',
-            backgroundColor: '#2d2d2d',
-          }}
-        >
-          <ShimmerBlock
-            blockWidth={(width - 96) / 4}
-            blockHeight={40}
-            borderRadius={20}
-          />
-          <ShimmerBlock
-            blockWidth={(width - 96) / 4}
-            blockHeight={40}
-            borderRadius={20}
-          />
-          <ShimmerBlock
-            blockWidth={(width - 96) / 4}
-            blockHeight={40}
-            borderRadius={20}
-          />
-          <ShimmerBlock
-            blockWidth={(width - 96) / 4}
-            blockHeight={40}
-            borderRadius={20}
-          />
-        </View>
-      </View>
-
-      {/* Also Known As */}
-      <View style={{ marginTop: 18, paddingHorizontal: 4 }}>
-        <ShimmerBlock blockWidth={120} blockHeight={20} borderRadius={4} />
-        <View style={{ height: 8 }} />
+      <View className="items-center mt-5">
         <ShimmerBlock
-          blockWidth={width - 48}
-          blockHeight={12}
-          borderRadius={4}
-        />
-        <View style={{ height: 6 }} />
-        <ShimmerBlock
-          blockWidth={width - 120}
-          blockHeight={12}
-          borderRadius={4}
+          blockWidth={width - 110}
+          blockHeight={height * 0.35}
+          borderRadius={500}
         />
       </View>
 
-      {/* Biography (multiple lines) */}
-      <View style={{ marginTop: 18, paddingHorizontal: 4 }}>
-        <ShimmerBlock blockWidth={140} blockHeight={20} borderRadius={4} />
-        <View style={{ height: 10 }} />
-        <ShimmerBlock
-          blockWidth={width - 32}
-          blockHeight={12}
-          borderRadius={4}
-        />
-        <View style={{ height: 6 }} />
-        <ShimmerBlock
-          blockWidth={width - 40}
-          blockHeight={12}
-          borderRadius={4}
-        />
-        <View style={{ height: 6 }} />
-        <ShimmerBlock
-          blockWidth={width - 48}
-          blockHeight={12}
-          borderRadius={4}
-        />
-        <View style={{ height: 6 }} />
-        <ShimmerBlock
-          blockWidth={width - 80}
-          blockHeight={12}
-          borderRadius={4}
-        />
-        <View style={{ height: 6 }} />
-        <ShimmerBlock
-          blockWidth={width - 64}
-          blockHeight={12}
-          borderRadius={4}
-        />
+      {/* Title */}
+      <View style={styles.center}>
+        <ShimmerBlock blockWidth={width * 0.6} blockHeight={22} />
+      </View>
+
+      {/* Meta Row */}
+      <View style={styles.metaRow}>
+        <ShimmerBlock blockWidth={70} blockHeight={14} />
+        <ShimmerBlock blockWidth={60} blockHeight={14} />
+        <ShimmerBlock blockWidth={90} blockHeight={14} />
+        <ShimmerBlock blockWidth={50} blockHeight={14} />
+      </View>
+
+      {/* Genres */}
+      <View style={styles.center}>
+        <ShimmerBlock blockWidth={width * 0.75} blockHeight={14} />
+      </View>
+
+      {/* Overview */}
+      <View style={styles.textBlock}>
+        <ShimmerBlock blockWidth={width - 32} blockHeight={12} />
+        <Spacer />
+        <ShimmerBlock blockWidth={width - 48} blockHeight={12} />
+        <Spacer />
+        <ShimmerBlock blockWidth={width - 64} blockHeight={12} />
+        <Spacer />
+        <ShimmerBlock blockWidth={width - 96} blockHeight={12} />
       </View>
     </View>
   );
 };
 
-export default ProfileDetailsSkeleton;
+export default DetailsSkeleton;
 
+/* -------------------- Helpers -------------------- */
+const Spacer = () => <View style={{ height: 8 }} />;
+
+/* -------------------- Styles -------------------- */
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
+    paddingHorizontal: 8,
+    paddingTop: 8,
   },
   center: {
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 16,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: Platform.OS === 'ios' ? '600' : '500',
-    marginLeft: 20,
-    marginVertical: 8,
-    color: '#fff',
+  metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 18,
+  },
+  textBlock: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  actions: {
+    marginTop: 28,
+    paddingHorizontal: 32,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });

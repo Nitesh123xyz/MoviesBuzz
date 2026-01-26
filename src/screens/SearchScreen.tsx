@@ -104,7 +104,7 @@ export default function SearchScreen() {
         <TouchableOpacity
           className={`flex-row p-3 ${theme.cardBg}`}
           onPress={() =>
-            navigation.navigate('MovieDetails', { movieId: item.id })
+            navigation.navigate('DetailsScreen', { movieId: item.id })
           }
         >
           <Image

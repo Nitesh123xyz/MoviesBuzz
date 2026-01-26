@@ -130,7 +130,7 @@ const WatchListMovies = () => {
   const renderGridItem = ({ item }: { item: WatchListMoviesProps }) => (
     <TouchableOpacity
       style={{ marginLeft: GAP, marginTop: GAP }}
-      onPress={() => navigation.navigate('MovieDetails', { movieId: item.id })}
+      onPress={() => navigation.navigate('DetailsScreen', { movieId: item.id })}
     >
       <View style={{ width: GRID_ITEM_WIDTH }}>
         <View

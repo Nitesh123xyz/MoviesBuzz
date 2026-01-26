@@ -79,7 +79,7 @@ export default function TabNavigator() {
       initialRouteName="Home"
       screenOptions={{
         headerShown: false,
-        animation: 'shift',
+        animation: 'fade',
         tabBarStyle: {
           backgroundColor: isDark ? '#27272a' : '#ffffff',
           borderTopWidth: 0,

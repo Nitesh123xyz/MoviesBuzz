@@ -17,7 +17,11 @@ import { IMAGE_BASE_URL } from '@env';
 import { DateFormatter } from '../utils/Formatter';
 import { BackUpPosterImage } from '../utils/Backup';
 import { RootStackParamList } from 'src/types/RootStackParamList';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 
 const LAYOUTS = {
   LIST: 'LIST',
@@ -34,7 +38,9 @@ interface MovieItem {
   [key: string]: any;
 }
 
-const SeeAll = ({ route, navigation }: Props) => {
+const SeeAll = ({ route }: Props) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { title } = route?.params;
   const [pageNo, setPageNo] = useState(1);
   const [items, setItems] = useState<MovieItem[]>([]);
@@ -114,7 +120,7 @@ const SeeAll = ({ route, navigation }: Props) => {
   // Renderers
   const renderListItem = ({ item }: { item: MovieItem }) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('MovieDetails', { movieId: item.id })}
+      onPress={() => navigation.navigate('DetailsScreen', { movieId: item.id })}
       className="px-4 py-3 border-b border-gray-700 flex-row items-center bg-black"
     >
       <Image
@@ -154,7 +160,7 @@ const SeeAll = ({ route, navigation }: Props) => {
     return (
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate('MovieDetails', { movieId: item.id })
+          navigation.navigate('DetailsScreen', { movieId: item.id })
         }
         className={`m-2 bg-black ${numColumns === 3 ? 'flex-1' : ''}`}
         style={numColumns === 3 ? { maxWidth: '31%' } : undefined}

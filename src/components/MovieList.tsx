@@ -115,9 +115,9 @@ const MovieList = ({
   const handlePressMovie = useCallback(
     (movieId: number) => {
       if (actionType === 'push') {
-        navigation.push('MovieDetails', { movieId });
+        navigation.push('DetailsScreen', { movieId });
       } else {
-        navigation.navigate('MovieDetails', { movieId });
+        navigation.navigate('DetailsScreen', { movieId });
       }
     },
     [navigation, actionType],

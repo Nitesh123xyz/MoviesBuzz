@@ -33,6 +33,7 @@ import { useColorScheme } from 'nativewind';
 import { RootStackParamList } from 'src/types/RootStackParamList';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MoviesDetails } from 'src/types/MoviesTypes';
+import DetailsSkeleton from '../components/loaders/DetailsSkeleton';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 type Props = NativeStackScreenProps<RootStackParamList, 'DetailsScreen'>;
 
@@ -47,6 +48,7 @@ const DetailsScreen = ({ route, navigation }: Props) => {
   const { data: Casts, isLoading: CastsLoading } = useGetCastQuery(movieId);
   const { data: SimilarMovies, isLoading: SimilarMoviesLoading } =
     useGetSimilarMoviesQuery(movieId);
+  const Loadings = Boolean(isLoading || CastsLoading);
   // ----------------------------------------
   const { data: favData, refetch: FavoriteMoviesRefetch } =
     useGetFavoriteMoviesQuery({});
@@ -73,11 +75,12 @@ const DetailsScreen = ({ route, navigation }: Props) => {
   const [addFavoriteMovies] = useAddFavoriteMoviesMutation();
 
   let PosterImage = '';
-  if (isLoading) {
+  if (Loadings) {
     return (
       <>
         <View className="flex-1 h-screen justify-center items-center">
-          <ActivityIndicator size={35} color="#fff" />
+          {/* <ActivityIndicator size={35} color="#fff" /> */}
+          {Loadings && <DetailsSkeleton />}
         </View>
       </>
     );

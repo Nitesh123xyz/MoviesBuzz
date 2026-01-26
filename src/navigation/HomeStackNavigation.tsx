@@ -25,7 +25,7 @@ const HomeStackNavigation = () => {
       <Stack.Screen name="SeeAll" component={SeeAll} />
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="MovieDetails" component={DetailsScreen} />
+      <Stack.Screen name="DetailsScreen" component={DetailsScreen} />
       <Stack.Screen name="PersonScreen" component={PersonScreen} />
     </Stack.Navigator>
   );
