@@ -156,7 +156,6 @@ const SeeAll = ({ route }: Props) => {
   );
 
   const renderGridItem = ({ item }: { item: MovieItem }) => {
-    console.log(item);
     return (
       <TouchableOpacity
         onPress={() =>

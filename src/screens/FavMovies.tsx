@@ -130,7 +130,7 @@ const FavMovies = () => {
   }
 
   return (
-    <View className={`flex-1 ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'}`}>
+    <View className={`flex-1 ${isDark ? 'bg-neutral-800' : 'bg-neutral-100'} mb-14`}>
       <View className="flex-row items-center justify-between p-3">
         <Text
           className={`${isDark ? 'text-black' : 'text-white'} text-[1.3rem]`}

@@ -2,18 +2,15 @@ import React from 'react';
 import {
   View,
   Dimensions,
-  Text,
   TouchableWithoutFeedback,
   Image,
-  ActivityIndicator,
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { useGetAllTrendingMoviesQuery } from '../features/movies';
 import { IMAGE_BASE_URL } from '@env';
 import Rating from './Rating';
 import { RootStackParamList } from 'src/types/RootStackParamList';
-
+import IndicatorLoader from '../components/loaders/IndicatorLoader';
 // ------------------------------------------------
 
 interface MovieItem {
@@ -28,8 +25,9 @@ interface MovieCardProps {
   handleClick: (item: { id: string }) => void;
 }
 
-interface TrendingMoviesResponse {
+interface ImageCarouselProps {
   results: MovieItem[];
+  loading?: boolean;
 }
 
 // ------------------------------------------------
@@ -38,55 +36,42 @@ const { width: screenWidth } = Dimensions.get('window');
 const posterRatio = 1.5;
 const carouselHeight = Math.round(screenWidth * posterRatio);
 
-const ImageCarousel = ({ isDark }: { isDark: boolean | string }) => {
-  const { data, isLoading } = useGetAllTrendingMoviesQuery({});
-  const { results } = (data as TrendingMoviesResponse) || {};
+const ImageCarousel = ({ results, loading }: ImageCarouselProps) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleClick = (item: { id: string }) => {
     navigation.navigate('DetailsScreen', { movieId: item?.id });
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <>
-        <View className="flex-1 h-screen justify-center items-center">
-          <ActivityIndicator size={35} color="#000" />
-        </View>
+        <IndicatorLoader Size={30} Color="red" />
       </>
     );
   }
 
   return (
     <>
-      <View>
-        <Text
-          className={`text-[1.3rem] ml-5 my-2 ${
-            isDark ? 'text-white' : 'text-black'
-          }`}
-        >
-          Trending
-        </Text>
-        <View className="items-center">
-          <Carousel
-            loop
-            width={screenWidth}
-            height={carouselHeight}
-            data={results}
-            defaultIndex={1}
-            pagingEnabled
-            mode="parallax"
-            windowSize={3}
-            containerStyle={{ marginTop: -50 }}
-            modeConfig={{
-              parallaxScrollingScale: 0.78,
-            }}
-            scrollAnimationDuration={500}
-            renderItem={({ item }: { item: MovieItem }) => (
-              <MovieCard item={item} handleClick={handleClick} />
-            )}
-          />
-        </View>
+      <View className="items-center">
+        <Carousel
+          loop
+          width={screenWidth}
+          height={carouselHeight}
+          data={results}
+          defaultIndex={1}
+          pagingEnabled
+          mode="parallax"
+          windowSize={3}
+          containerStyle={{ marginTop: -50 }}
+          modeConfig={{
+            parallaxScrollingScale: 0.78,
+          }}
+          scrollAnimationDuration={500}
+          renderItem={({ item }: { item: MovieItem }) => (
+            <MovieCard item={item} handleClick={handleClick} />
+          )}
+        />
       </View>
     </>
   );
@@ -104,10 +89,10 @@ const MovieCard = ({ item, handleClick }: MovieCardProps) => {
           source={{
             uri: imageUri,
           }}
-          style={{ width: '100%', height: '100%', borderRadius: 16 }}
-          resizeMode="cover"
+          style={{ width: '100%', height: '90%', borderRadius: 16 }}
+          resizeMode="stretch"
         />
-        <Rating RatingPer={item?.vote_average} Size={27} />
+        <Rating RatingPer={item?.vote_average} Size={27} BottomPosition={60} />
       </View>
     </TouchableWithoutFeedback>
   );

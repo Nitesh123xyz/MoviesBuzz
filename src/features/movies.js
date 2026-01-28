@@ -18,6 +18,14 @@ export const MoviesSlice = createApi({
       query: () => `/trending/all/day?language=en-US?api_key=${API_KEY}`,
     }),
 
+    getAllTrendingTVShows: builder.query({
+      query: () => `/trending/tv/day?language=en-US?api_key=${API_KEY}`,
+    }),
+
+    getAllGenresList: builder.query({
+      query: () => `/genre/movie/list?language=en?api_key=${API_KEY}`,
+    }),
+
     getAllSearchMovies: builder.query({
       query: searchedQuery =>
         `search/movie?query=${
@@ -90,7 +98,10 @@ export const MoviesSlice = createApi({
 
 export const {
   useGetAllTrendingMoviesQuery,
+  useGetAllTrendingTVShowsQuery,
   useGetAllSearchMoviesQuery,
+  // ------------------------------
+  useGetAllGenresListQuery,
   // ------------------------------
   useGetUpcomingMoviesQuery,
   useGetLatestMoviesQuery,

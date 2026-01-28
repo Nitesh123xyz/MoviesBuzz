@@ -6,14 +6,19 @@ import CircularProgress from 'react-native-circular-progress-indicator';
 interface RatingProps {
   RatingPer?: number;
   Size?: number;
+  BottomPosition?: number;
 }
 
 // ------------------------------------------------
 
-const Rating = ({ RatingPer = 0, Size = 25 }: RatingProps) => {
+const Rating = ({
+  RatingPer = 0,
+  Size = 25,
+  BottomPosition = 5,
+}: RatingProps) => {
   const percentValue = Math.round((RatingPer / 10) * 100);
   return (
-    <View className="absolute bottom-2 right-1">
+    <View style={{ bottom: BottomPosition }} className={`absolute  right-1`}>
       <CircularProgress
         value={percentValue}
         radius={Size}

@@ -98,7 +98,6 @@ const DetailsScreen = ({ route, navigation }: Props) => {
   };
 
   const handleAddToWatchList = async (MovieInfo: MoviesDetails) => {
-    console.log(MovieInfo);
     performAction(async () => {
       const currentUser = auth().currentUser;
       if (!currentUser) {

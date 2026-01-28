@@ -1,6 +1,5 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
-  ActivityIndicator,
   Dimensions,
   Text,
   TouchableOpacity,
@@ -10,11 +9,12 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { IMAGE_BASE_URL } from '@env';
-import Rating from './Rating';
 import { BackUpPosterImage } from '../utils/Backup';
 import { useColorScheme } from 'nativewind';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from 'src/types/RootStackParamList';
+import { ChevronRight } from 'lucide-react-native';
+import IndicatorLoader from './loaders/IndicatorLoader';
 
 // ------------------------------------------------
 
@@ -30,14 +30,15 @@ interface MovieItem {
 interface MovieListProps {
   title: string;
   MoviesApi: any;
-  loader: boolean;
-  isDark?: boolean;
+  loading?: boolean;
+  isDark: boolean | string | number;
   hideSeeAll?: boolean;
   actionType?: 'push' | 'navigate';
 }
 
 interface MovieCardProps {
   item: MovieItem;
+  isDark: boolean | string | number;
   onPress: (id: number) => void;
 }
 
@@ -45,9 +46,11 @@ interface MovieCardProps {
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 // ------------------------------------------------
 
-const MovieCard = memo(function MovieCard({ item, onPress }: MovieCardProps) {
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
+const MovieCard = memo(function MovieCard({
+  item,
+  isDark,
+  onPress,
+}: MovieCardProps) {
   const imageUri =
     item?.poster_path || item?.backdrop_path
       ? `${IMAGE_BASE_URL}${item?.poster_path}`
@@ -59,14 +62,14 @@ const MovieCard = memo(function MovieCard({ item, onPress }: MovieCardProps) {
       onPress={() => onPress(item?.id)}
       style={{ marginHorizontal: 7.5 }}
     >
-      <View style={{ width: screenWidth / 2 }}>
+      <View style={{ width: screenWidth / 3.1 }}>
         <Image
           source={{
             uri: imageUri !== null ? imageUri : BackUpPosterImage,
           }}
           style={{
-            width: screenWidth / 2,
-            height: screenHeight / 2.9,
+            width: screenWidth / 3,
+            height: screenHeight / 4.5,
             borderRadius: 8,
             overflow: 'hidden',
             backgroundColor: '#111827',
@@ -74,10 +77,6 @@ const MovieCard = memo(function MovieCard({ item, onPress }: MovieCardProps) {
           }}
           resizeMode="cover"
         />
-
-        <View pointerEvents="none">
-          <Rating RatingPer={item?.vote_average} Size={18} />
-        </View>
 
         <Text
           numberOfLines={1}
@@ -87,7 +86,7 @@ const MovieCard = memo(function MovieCard({ item, onPress }: MovieCardProps) {
             width: screenWidth / 2,
           }}
         >
-          {item?.title || item?.name}
+          {item?.title?.slice(0, 12) || item?.name}
         </Text>
       </View>
     </TouchableOpacity>
@@ -97,14 +96,13 @@ const MovieCard = memo(function MovieCard({ item, onPress }: MovieCardProps) {
 const MovieList = ({
   title,
   MoviesApi,
-  loader,
+  loading,
+  isDark,
   hideSeeAll = false,
   actionType = 'navigate',
 }: MovieListProps) => {
   const { results, cast } = MoviesApi || {};
   const Results = results || cast || [];
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -125,18 +123,16 @@ const MovieList = ({
 
   const renderMovieItem = useCallback(
     ({ item }: { item: MovieItem }) => (
-      <MovieCard item={item} onPress={handlePressMovie} />
+      <MovieCard item={item} isDark={isDark} onPress={handlePressMovie} />
     ),
     [handlePressMovie],
   );
 
-  if (loader) {
+  if (loading) {
     return (
-      <ActivityIndicator
-        size="large"
-        color="white"
-        style={{ marginVertical: 20 }}
-      />
+      <>
+        <IndicatorLoader Size={20} Color="gray" />
+      </>
     );
   }
 
@@ -144,25 +140,27 @@ const MovieList = ({
     <View style={{ marginVertical: 8 }}>
       <View
         style={{
-          marginHorizontal: 16,
+          paddingHorizontal: 9,
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
       >
-        <Text className={`${isDark ? 'text-white' : 'text-black'} text-lg`}>
+        <Text
+          className={`${
+            isDark ? 'text-white' : 'text-black'
+          } text-lg uppercase`}
+        >
           {title}
         </Text>
         {!hideSeeAll && (
           <TouchableOpacity
             className={`${
-              isDark ? 'bg-white/20' : 'bg-black/20'
-            } p-2 rounded-md`}
+              isDark ? 'bg-white/20' : 'bg-black/10'
+            } p-1.5 rounded-full`}
             onPress={handleSeeAll}
           >
-            <Text style={{ color: isDark ? 'white' : 'black', fontSize: 10 }}>
-              See All
-            </Text>
+            <ChevronRight color={isDark ? 'white' : 'black'} size={15} />
           </TouchableOpacity>
         )}
       </View>
@@ -173,15 +171,14 @@ const MovieList = ({
         renderItem={renderMovieItem}
         horizontal
         showsHorizontalScrollIndicator={false}
-        initialNumToRender={6}
-        maxToRenderPerBatch={10}
+        initialNumToRender={3}
+        maxToRenderPerBatch={5}
         windowSize={5}
         removeClippedSubviews
         decelerationRate="fast"
         snapToAlignment="start"
         snapToInterval={screenWidth / 2 + 16}
         contentContainerStyle={{
-          paddingHorizontal: 8,
           paddingVertical: 10,
         }}
       />
