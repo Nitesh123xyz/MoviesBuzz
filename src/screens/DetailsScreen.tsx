@@ -8,10 +8,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ToastAndroid,
-  ActivityIndicator,
   StatusBar,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Cast from '../components/Cast';
 import { IMAGE_BASE_URL } from '@env';
 import { BackUpPosterImage } from '../utils/Backup';
@@ -34,7 +32,7 @@ import { RootStackParamList } from 'src/types/RootStackParamList';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MoviesDetails } from 'src/types/MoviesTypes';
 import DetailsSkeleton from '../components/loaders/DetailsSkeleton';
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { height: screenHeight } = Dimensions.get('window');
 type Props = NativeStackScreenProps<RootStackParamList, 'DetailsScreen'>;
 
 const DetailsScreen = ({ route, navigation }: Props) => {
@@ -79,7 +77,6 @@ const DetailsScreen = ({ route, navigation }: Props) => {
     return (
       <>
         <View className="flex-1 h-screen justify-center items-center">
-          {/* <ActivityIndicator size={35} color="#fff" /> */}
           {Loadings && <DetailsSkeleton />}
         </View>
       </>
@@ -172,20 +169,7 @@ const DetailsScreen = ({ route, navigation }: Props) => {
               imageStyle={{ borderRadius: 16 }}
               className="rounded-2xl"
               resizeMode="cover"
-            >
-              <LinearGradient
-                colors={['rgba(23,23,23,0.5)', 'transparent']}
-                start={{ x: 0, y: 1 }}
-                end={{ x: 0, y: 0 }}
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                }}
-              />
-            </ImageBackground>
+            />
           </View>
         </View>
         {/* Movie Info */}
@@ -320,7 +304,7 @@ const DetailsScreen = ({ route, navigation }: Props) => {
             <MovieList
               title="Similar Movies"
               MoviesApi={SimilarMovies}
-              loader={SimilarMoviesLoading}
+              // loader={SimilarMoviesLoading}
               isDark={isDark}
               hideSeeAll={true}
               actionType="push"

@@ -39,7 +39,7 @@ const TvScreen = () => {
         className={`flex-1 ${isDark ? 'bg-black' : 'bg-white'} mb-5`}
       >
         <ScrollView showsVerticalScrollIndicator={false}>
-          <ImageCarousel results={results} isLoading={isLoading} />
+          <ImageCarousel results={results} loading={isLoading} />
 
           <View className="mt-[-6rem]">
             {/* <MovieList

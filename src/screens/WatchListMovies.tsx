@@ -214,7 +214,7 @@ const WatchListMovies = () => {
 
   /* ---------------- UI ---------------- */
   return (
-    <View className={`flex-1 ${theme.bg}`}>
+    <View className={`flex-1 bg-main-bg dark:bg-main-bg-dark`}>
       {/* HEADER */}
       <View className="flex-row items-center justify-between px-4 py-3">
         <Text className={`text-lg font-semibold ${theme.textPrimary}`}>

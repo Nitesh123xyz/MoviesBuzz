@@ -9,8 +9,7 @@ import Carousel from 'react-native-reanimated-carousel';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { IMAGE_BASE_URL } from '@env';
 import Rating from './Rating';
-import { RootStackParamList } from 'src/types/RootStackParamList';
-import IndicatorLoader from '../components/loaders/IndicatorLoader';
+import { RootStackParamList } from '../types/RootStackParamList';
 // ------------------------------------------------
 
 interface MovieItem {
@@ -27,7 +26,6 @@ interface MovieCardProps {
 
 interface ImageCarouselProps {
   results: MovieItem[];
-  loading?: boolean;
 }
 
 // ------------------------------------------------
@@ -36,20 +34,12 @@ const { width: screenWidth } = Dimensions.get('window');
 const posterRatio = 1.5;
 const carouselHeight = Math.round(screenWidth * posterRatio);
 
-const ImageCarousel = ({ results, loading }: ImageCarouselProps) => {
+const ImageCarousel = ({ results }: ImageCarouselProps) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleClick = (item: { id: string }) => {
     navigation.navigate('DetailsScreen', { movieId: item?.id });
   };
-
-  if (loading) {
-    return (
-      <>
-        <IndicatorLoader Size={30} Color="red" />
-      </>
-    );
-  }
 
   return (
     <>
@@ -78,10 +68,8 @@ const ImageCarousel = ({ results, loading }: ImageCarouselProps) => {
 };
 
 const MovieCard = ({ item, handleClick }: MovieCardProps) => {
-  const imageUri =
-    item?.poster_path || item?.backdrop_path
-      ? `${IMAGE_BASE_URL}${item?.poster_path}`
-      : `${IMAGE_BASE_URL}${item?.backdrop_path}`;
+  const imageUri = `${IMAGE_BASE_URL}${item?.poster_path}`;
+
   return (
     <TouchableWithoutFeedback onPress={() => handleClick(item)}>
       <View style={{ width: screenWidth, height: carouselHeight }}>
@@ -92,7 +80,8 @@ const MovieCard = ({ item, handleClick }: MovieCardProps) => {
           style={{ width: '100%', height: '90%', borderRadius: 16 }}
           resizeMode="stretch"
         />
-        <Rating RatingPer={item?.vote_average} Size={27} BottomPosition={60} />
+        <Rating RatingNumber={item?.vote_average ?? 0} />
+        {/* <Rating RatingPer={item?.vote_average} Size={27} BottomPosition={60} /> */}
       </View>
     </TouchableWithoutFeedback>
   );

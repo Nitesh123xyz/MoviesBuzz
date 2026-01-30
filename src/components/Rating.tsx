@@ -1,39 +1,14 @@
-import { StyleSheet, View } from 'react-native';
-import React from 'react';
-import CircularProgress from 'react-native-circular-progress-indicator';
+import { Text, View } from 'react-native';
+import { RatingFormatter } from '../utils/Formatter';
 
-// ------------------------------------------------
-interface RatingProps {
-  RatingPer?: number;
-  Size?: number;
-  BottomPosition?: number;
-}
-
-// ------------------------------------------------
-
-const Rating = ({
-  RatingPer = 0,
-  Size = 25,
-  BottomPosition = 5,
-}: RatingProps) => {
-  const percentValue = Math.round((RatingPer / 10) * 100);
+const Rating = ({ RatingNumber = 0 }: { RatingNumber?: number }) => {
   return (
-    <View style={{ bottom: BottomPosition }} className={`absolute  right-1`}>
-      <CircularProgress
-        value={percentValue}
-        radius={Size}
-        showProgressValue={false}
-        titleColor="white"
-        title={`${RatingPer.toFixed(1)}`}
-        titleStyle={{ fontSize: 10, fontWeight: 'bold' }}
-        activeStrokeColor="#CFECF7"
-        activeStrokeWidth={5}
-        duration={900}
-      />
+    <View className="absolute top-0 right-0 bg-blue-500 w-10 h-5 flex items-center justify-center rounded-tr-lg rounded-bl-lg">
+      <Text className="text-xs text-white font-medium">
+        {RatingFormatter(RatingNumber ?? 0)}
+      </Text>
     </View>
   );
 };
 
 export default Rating;
-
-const styles = StyleSheet.create({});

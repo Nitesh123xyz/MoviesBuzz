@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import {
+  useGetGenreMoviesQuery,
   useGetLatestMoviesQuery,
   useGetUpcomingMoviesQuery,
 } from '../features/movies';
@@ -16,17 +17,19 @@ import { LayoutGrid, LayoutList } from 'lucide-react-native';
 import { IMAGE_BASE_URL } from '@env';
 import { DateFormatter } from '../utils/Formatter';
 import { BackUpPosterImage } from '../utils/Backup';
-import { RootStackParamList } from 'src/types/RootStackParamList';
+import { RootStackParamList } from '../types/RootStackParamList';
 import {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import Rating from '../components/Rating';
 
 const LAYOUTS = {
   LIST: 'LIST',
   GRID3: 'GRID3',
 };
+
 type Props = NativeStackScreenProps<RootStackParamList, 'SeeAll'>;
 interface MovieItem {
   id: string | number;
@@ -41,13 +44,12 @@ interface MovieItem {
 const SeeAll = ({ route }: Props) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { title } = route?.params;
+  const { title, genreId, genreName } = route?.params;
   const [pageNo, setPageNo] = useState(1);
   const [items, setItems] = useState<MovieItem[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [layout, setLayout] = useState(LAYOUTS.GRID3);
 
-  // Hooks called unconditionally
   const {
     data: latestData,
     isFetching: isFetchingLatest,
@@ -56,18 +58,40 @@ const SeeAll = ({ route }: Props) => {
   } = useGetLatestMoviesQuery(pageNo, { skip: title !== 'Top Rated' });
 
   const {
+    data: GenresData,
+    isFetching: isFetchingGenres,
+    isLoading: isLoadingGenres,
+    isError: isErrorGenres,
+  } = useGetGenreMoviesQuery({ page: pageNo, genreId }, { skip: !genreId });
+
+  const {
     data: upcomingData,
     isFetching: isFetchingUpcoming,
     isLoading: isLoadingUpcoming,
     isError: isErrorUpcoming,
   } = useGetUpcomingMoviesQuery(pageNo, { skip: title !== 'Upcoming' });
 
-  const activeData = title === 'Top Rated' ? latestData : upcomingData;
-  const activeFetching =
-    title === 'Top Rated' ? isFetchingLatest : isFetchingUpcoming;
-  const activeLoading =
-    title === 'Top Rated' ? isLoadingLatest : isLoadingUpcoming;
-  const activeError = title === 'Top Rated' ? isErrorLatest : isErrorUpcoming;
+  let activeData: any;
+  let activeFetching: boolean = false;
+  let activeLoading: boolean = false;
+  let activeError: any;
+
+  if (genreId) {
+    activeData = GenresData;
+    activeFetching = isFetchingGenres;
+    activeLoading = isLoadingGenres;
+    activeError = isErrorGenres;
+  } else if (title === 'Top Rated') {
+    activeData = latestData;
+    activeFetching = isFetchingLatest;
+    activeLoading = isLoadingLatest;
+    activeError = isErrorLatest;
+  } else if (title === 'Upcoming') {
+    activeData = upcomingData;
+    activeFetching = isFetchingUpcoming;
+    activeLoading = isLoadingUpcoming;
+    activeError = isErrorUpcoming;
+  }
 
   useEffect(() => {
     if (!activeData) return;
@@ -120,37 +144,41 @@ const SeeAll = ({ route }: Props) => {
   // Renderers
   const renderListItem = ({ item }: { item: MovieItem }) => (
     <TouchableOpacity
+      activeOpacity={0.8}
       onPress={() => navigation.navigate('DetailsScreen', { movieId: item.id })}
-      className="px-4 py-3 border-b border-gray-700 flex-row items-center bg-black"
+      className="px-4 py-3 border-b border-gray-700 flex-row items-start bg-black"
     >
-      <Image
-        source={{
-          uri: item.poster_path
-            ? `${IMAGE_BASE_URL}${item.poster_path}`
-            : BackUpPosterImage,
-        }}
-        style={{
-          width: 100,
-          height: 100,
-          borderRadius: 8,
-          backgroundColor: '#111827',
-        }}
-        resizeMode="cover"
-      />
+      <View>
+        <Image
+          source={{
+            uri: item.poster_path
+              ? `${IMAGE_BASE_URL}${item.poster_path}`
+              : BackUpPosterImage,
+          }}
+          style={{
+            width: 100,
+            height: 140,
+            borderRadius: 8,
+            backgroundColor: 'black',
+            position: 'relative',
+          }}
+          resizeMode="cover"
+        />
+        <Rating RatingNumber={item?.vote_average ?? 0} />
+      </View>
       <View className="ml-3 flex-1">
-        <Text className="text-white text-base font-semibold">
+        <Text numberOfLines={1} className="text-white text-base font-semibold">
           {item?.title ?? item?.name ?? 'Untitled'}
         </Text>
-        <Text className="text-gray-400 text-xs mt-1">
+        <Text className="text-gray-400 text-sm mt-1">
           {DateFormatter(item?.release_date) ?? ''}
         </Text>
-        <View className="mt-2 inline-flex flex-row items-center">
-          <View className="px-2 py-1 bg-yellow-500 rounded-full">
-            <Text className="text-xs font-semibold">
-              {Math.round((item.vote_average ?? 0) * 10) / 10}
-            </Text>
-          </View>
-        </View>
+        <Text
+          numberOfLines={5}
+          className="text-white text-xs font-semibold mt-2"
+        >
+          {item?.overview ?? item?.name ?? 'Untitled'}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -179,6 +207,8 @@ const SeeAll = ({ route }: Props) => {
           resizeMode="cover"
         />
 
+        <Rating RatingNumber={item?.vote_average ?? 0} />
+
         <View className="mt-2 px-1">
           <Text className="text-white text-sm font-semibold" numberOfLines={2}>
             {item?.title ?? item?.name ?? 'Untitled'}
@@ -187,11 +217,6 @@ const SeeAll = ({ route }: Props) => {
             <Text className="text-gray-400 text-xs">
               {item?.release_date?.slice?.(0, 4) ?? ''}
             </Text>
-            <View className="px-2 py-0.5 bg-yellow-500 rounded-full">
-              <Text className="text-xs font-medium">
-                {Math.round((item.vote_average ?? 0) * 10) / 10}
-              </Text>
-            </View>
           </View>
         </View>
       </TouchableOpacity>
@@ -201,7 +226,7 @@ const SeeAll = ({ route }: Props) => {
   const ListFooter = () => {
     if (!activeFetching) return null;
     return (
-      <View className="py-4 items-center">
+      <View className="my-20 items-center">
         <ActivityIndicator size={30} color="#fff" />
         <Text className="text-gray-400 text-xs mt-2">Loading more...</Text>
       </View>
@@ -233,13 +258,15 @@ const SeeAll = ({ route }: Props) => {
 
   return (
     <View className="flex-1 bg-black">
-      <View className="px-4 py-3 border-b border-gray-800 flex-row items-center justify-between">
-        <Text className="text-white text-2xl font-bold">{title}</Text>
+      <View className="px-2 py-3 border-b border-gray-800 flex-row items-center justify-between">
+        <Text className="text-white text-2xl font-bold uppercase">
+          {title || genreName}
+        </Text>
 
         <View className="flex-row items-center gap-2">
           <Pressable
             onPress={() => setLayout(LAYOUTS.LIST)}
-            className={`px-3 py-1 rounded ${
+            className={`p-3 rounded ${
               layout === LAYOUTS.LIST ? 'bg-gray-700' : 'bg-gray-900'
             }`}
           >
@@ -248,7 +275,7 @@ const SeeAll = ({ route }: Props) => {
 
           <Pressable
             onPress={() => setLayout(LAYOUTS.GRID3)}
-            className={`px-3 py-1 rounded ${
+            className={`p-3 rounded ${
               layout === LAYOUTS.GRID3 ? 'bg-gray-700' : 'bg-gray-900'
             }`}
           >
@@ -257,19 +284,19 @@ const SeeAll = ({ route }: Props) => {
         </View>
       </View>
 
-      <View className="flex-1">
+      <View className="flex-1 mb-20">
         <FlatList
           data={items}
           keyExtractor={keyExtractor}
-          style={{ flex: 1 }}
           renderItem={layout === LAYOUTS.LIST ? renderListItem : renderGridItem}
+          style={{ flex: 1 }}
+          contentContainerStyle={items.length === 0 ? { flex: 1 } : {}}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.4}
+          decelerationRate={0.8}
           ListFooterComponent={ListFooter}
           numColumns={numColumns}
-          // Important: when switching numColumns, force re-render by changing key
           key={numColumns}
-          contentContainerStyle={items.length === 0 ? { flex: 1 } : {}}
           refreshing={activeFetching && pageNo === 1}
           onRefresh={refreshList}
         />

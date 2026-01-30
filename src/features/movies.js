@@ -25,6 +25,10 @@ export const MoviesSlice = createApi({
     getAllGenresList: builder.query({
       query: () => `/genre/movie/list?language=en?api_key=${API_KEY}`,
     }),
+    getGenreMovies: builder.query({
+      query: ({ page = 1, genreId }) =>
+        `/discover/movie?language=en-US&page=${page}?api_key=${API_KEY}&with_genres=${genreId}`,
+    }),
 
     getAllSearchMovies: builder.query({
       query: searchedQuery =>
@@ -100,6 +104,8 @@ export const {
   useGetAllTrendingMoviesQuery,
   useGetAllTrendingTVShowsQuery,
   useGetAllSearchMoviesQuery,
+  // ------------------------------
+  useGetGenreMoviesQuery,
   // ------------------------------
   useGetAllGenresListQuery,
   // ------------------------------

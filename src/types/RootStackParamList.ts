@@ -1,5 +1,4 @@
 export type RootStackParamList = {
-  // TabNavigator: undefined;
   HomeStackNavigation: undefined;
   Home: undefined;
   DetailsScreen: { movieId: string | number };
@@ -9,22 +8,14 @@ export type RootStackParamList = {
   Favorite: undefined;
   Library: undefined;
   Search: undefined;
-  SeeAll: { title: string | number };
+  SeeAll: {
+    title?: string | number;
+    genreId?: string | number;
+    genreName: string;
+  };
   SignUp: undefined;
   Login: undefined;
   Profile: undefined;
-  Genres: undefined;
+  Genres: { genreId: string | number };
   CustomTabBar: undefined;
 };
-
-// export type RootStackParamList = {
-//   Home: undefined;
-//   Search: undefined;
-//   Library: undefined;
-//   Favorite: undefined;
-//   Profile: undefined;
-
-//   Login: undefined;
-//   SignUp: undefined;
-//   DetailsScreen: { movieId: number };
-// };

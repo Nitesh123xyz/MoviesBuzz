@@ -49,7 +49,7 @@ const Profile = () => {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-black px-6 pt-12">
+    <View className="flex-1 bg-main-bg dark:bg-main-bg-dark px-6 pt-12">
       {/* Profile Info */}
       <View className="items-center">
         <View className="h-28 w-28 rounded-full bg-indigo-500 items-center justify-center">
@@ -71,7 +71,7 @@ const Profile = () => {
       <View className="my-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
 
       {/* Dark Mode Toggle */}
-      <View className="flex-row items-center justify-between rounded-xl bg-gray-100 px-5 py-4 dark:bg-gray-900 mb-4">
+      <View className="flex-row items-center justify-between rounded-xl bg-card-bg dark:bg-card-bg-dark px-5 py-4 mb-4">
         <Text className="text-base text-black dark:text-white">Dark Mode</Text>
 
         <Pressable

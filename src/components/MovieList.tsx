@@ -10,11 +10,10 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { IMAGE_BASE_URL } from '@env';
 import { BackUpPosterImage } from '../utils/Backup';
-import { useColorScheme } from 'nativewind';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from 'src/types/RootStackParamList';
 import { ChevronRight } from 'lucide-react-native';
-import IndicatorLoader from './loaders/IndicatorLoader';
+import Rating from './Rating';
 
 // ------------------------------------------------
 
@@ -30,7 +29,6 @@ interface MovieItem {
 interface MovieListProps {
   title: string;
   MoviesApi: any;
-  loading?: boolean;
   isDark: boolean | string | number;
   hideSeeAll?: boolean;
   actionType?: 'push' | 'navigate';
@@ -68,25 +66,28 @@ const MovieCard = memo(function MovieCard({
             uri: imageUri !== null ? imageUri : BackUpPosterImage,
           }}
           style={{
-            width: screenWidth / 3,
+            width: screenWidth / 3.1,
             height: screenHeight / 4.5,
             borderRadius: 8,
             overflow: 'hidden',
             backgroundColor: '#111827',
-            position: 'relative',
+            // position: 'relative',
           }}
           resizeMode="cover"
         />
 
+        <Rating RatingNumber={item?.vote_average ?? 0} />
+
         <Text
           numberOfLines={1}
+          className="text-xs"
           style={{
             color: isDark ? 'white' : 'black',
             marginTop: 8,
             width: screenWidth / 2,
           }}
         >
-          {item?.title?.slice(0, 12) || item?.name}
+          {item?.title?.slice(0, 15) || item?.name}
         </Text>
       </View>
     </TouchableOpacity>
@@ -96,7 +97,6 @@ const MovieCard = memo(function MovieCard({
 const MovieList = ({
   title,
   MoviesApi,
-  loading,
   isDark,
   hideSeeAll = false,
   actionType = 'navigate',
@@ -127,14 +127,6 @@ const MovieList = ({
     ),
     [handlePressMovie],
   );
-
-  if (loading) {
-    return (
-      <>
-        <IndicatorLoader Size={20} Color="gray" />
-      </>
-    );
-  }
 
   return (
     <View style={{ marginVertical: 8 }}>

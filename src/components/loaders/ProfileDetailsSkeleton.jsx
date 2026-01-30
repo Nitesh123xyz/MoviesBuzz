@@ -1,7 +1,7 @@
 import { useColorScheme } from 'nativewind';
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -62,19 +62,7 @@ const ShimmerBlock = ({
           animatedStyle,
         ]}
         pointerEvents="none"
-      >
-        <LinearGradient
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          colors={[
-            'rgba(255,255,255,0.04)',
-            'rgba(255,255,255,0.18)',
-            'rgba(255,255,255,0.04)',
-          ]}
-          locations={[0.2, 0.5, 0.8]}
-          style={{ flex: 1 }}
-        />
-      </Animated.View>
+      ></Animated.View>
     </View>
   );
 };

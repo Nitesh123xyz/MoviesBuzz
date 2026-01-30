@@ -11,6 +11,7 @@ import {
 import MovieList from '../components/MovieList';
 import { FlatList } from 'react-native';
 import Genres from '../components/Genres';
+import IndicatorLoader from '../components/loaders/IndicatorLoader';
 
 // ------------------------------------------------
 
@@ -47,30 +48,41 @@ const MoviesScreen = () => {
       />
       <View
         style={{ paddingTop: insets.top }}
-        className={`flex-1 ${isDark ? 'bg-black' : 'bg-white'} mb-5`}
+        className={`flex-1 ${isDark ? 'bg-black' : 'bg-white'} mb-16`}
       >
         <FlatList
           data={[]}
           renderItem={() => null}
           ListHeaderComponent={
             <>
-              <ImageCarousel results={results} loading={TrendingLoading} />
+              {TrendingLoading ? (
+                <IndicatorLoader size={30} color="red" />
+              ) : (
+                <ImageCarousel results={results} />
+              )}
               <View className="mt-[-6rem]">
-                <Genres />
+                <Genres isDark={isDark} />
 
-                <MovieList
-                  title="Upcoming"
-                  MoviesApi={upcoming}
-                  loading={upcomingLoading}
-                  isDark={isDark}
-                />
-
-                <MovieList
-                  title="Top Rated"
-                  MoviesApi={latest}
-                  loading={latestLoading}
-                  isDark={isDark}
-                />
+                <View className="mt-[0.5rem]">
+                  {upcomingLoading ? (
+                    <IndicatorLoader size={30} color="red" />
+                  ) : (
+                    <MovieList
+                      title="Upcoming"
+                      MoviesApi={upcoming}
+                      isDark={isDark}
+                    />
+                  )}
+                  {latestLoading ? (
+                    <IndicatorLoader size={30} color="red" />
+                  ) : (
+                    <MovieList
+                      title="Top Rated"
+                      MoviesApi={latest}
+                      isDark={isDark}
+                    />
+                  )}
+                </View>
               </View>
             </>
           }

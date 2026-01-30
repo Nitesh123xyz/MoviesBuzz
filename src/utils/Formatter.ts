@@ -11,6 +11,8 @@ export const DateFormatter = (date: string | null | undefined) => {
   }).format(dataObj);
 };
 
+// -----------------------------------------------------
+
 export const TimerFormatter = (minutes: number | null | undefined) => {
   if (minutes === null || minutes === undefined) return 'N/A';
   if (isNaN(minutes)) return 'N/A';
@@ -24,4 +26,10 @@ export const TimerFormatter = (minutes: number | null | undefined) => {
   if (remainingMins === 0) return `${hours}h`;
 
   return `${hours}h ${remainingMins}m`;
+};
+
+// -----------------------------------------------------
+
+export const RatingFormatter = (RatingNumber: number) => {
+  return Math.round((RatingNumber ?? 0) * 10) / 10;
 };
