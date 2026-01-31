@@ -8,7 +8,6 @@ import {
 import Carousel from 'react-native-reanimated-carousel';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { IMAGE_BASE_URL } from '@env';
-import Rating from './Rating';
 import { RootStackParamList } from '../types/RootStackParamList';
 // ------------------------------------------------
 
@@ -80,8 +79,6 @@ const MovieCard = ({ item, handleClick }: MovieCardProps) => {
           style={{ width: '100%', height: '90%', borderRadius: 16 }}
           resizeMode="stretch"
         />
-        <Rating RatingNumber={item?.vote_average ?? 0} />
-        {/* <Rating RatingPer={item?.vote_average} Size={27} BottomPosition={60} /> */}
       </View>
     </TouchableWithoutFeedback>
   );

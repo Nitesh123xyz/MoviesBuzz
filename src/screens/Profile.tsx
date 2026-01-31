@@ -14,23 +14,29 @@ import { LogOut } from 'lucide-react-native';
 const Profile = () => {
   const { colorScheme, setColorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-
   const user = auth().currentUser;
 
-  // Animated value (no useEffect)
-  const translateX = useRef(new Animated.Value(isDark ? 26 : 2)).current;
+  /* ---------------- THEME ---------------- */
+  const theme = {
+    backgroundColor: isDark ? 'bg-black' : 'bg-white',
+    textColor: isDark ? 'text-white' : 'text-neutral-900',
+    borderLine: isDark ? 'border-neutral-800' : 'border-neutral-200',
+    secondaryText: isDark ? 'text-neutral-400' : 'text-neutral-600',
+    logoutButton: isDark ? 'bg-white/20' : 'bg-black/15',
+  };
+
+  const translateX = useRef(new Animated.Value(isDark ? 20 : 2)).current;
 
   const toggleTheme = () => {
     Animated.spring(translateX, {
       toValue: isDark ? 2 : 20,
       useNativeDriver: true,
-      friction: 6,
+      friction: 5,
     }).start();
 
     setColorScheme(isDark ? 'light' : 'dark');
   };
 
-  // Logout Function
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to sign out?', [
       { text: 'Cancel', style: 'cancel' },
@@ -39,7 +45,7 @@ const Profile = () => {
         style: 'destructive',
         onPress: async () => {
           try {
-            await auth().signOut(); // Clears session
+            await auth().signOut();
           } catch (error) {
             if (error instanceof Error) Alert.alert('Error', error.message);
           }
@@ -49,35 +55,32 @@ const Profile = () => {
   };
 
   return (
-    <View className="flex-1 bg-main-bg dark:bg-main-bg-dark px-6 pt-12">
-      {/* Profile Info */}
+    <View className={`flex-1 px-6 pt-12 ${theme.backgroundColor}`}>
       <View className="items-center">
         <View className="h-28 w-28 rounded-full bg-indigo-500 items-center justify-center">
-          <Text className="text-white text-4xl font-bold">
+          <Text className={`text-4xl font-bold ${theme.textColor}`}>
             {user?.email?.charAt(0).toUpperCase()}
           </Text>
         </View>
 
-        <Text className="mt-4 text-xl font-semibold text-black dark:text-white">
-          {user?.email?.split('@')[0]} {/* Display name from email */}
+        <Text className={`mt-4 text-xl font-semibold ${theme.textColor}`}>
+          {user?.email?.split('@')[0]}
         </Text>
 
-        <Text className="text-sm text-gray-500 dark:text-gray-400">
-          ID: {user?.uid} {/* Real unique ID from Firebase */}
+        <Text className={`text-sm ${theme.secondaryText}`}>
+          ID: {user?.uid}
         </Text>
       </View>
 
-      {/* Divider */}
-      <View className="my-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
+      <View className={`my-8 border-1 border-b ${theme.borderLine}`} />
 
-      {/* Dark Mode Toggle */}
       <View className="flex-row items-center justify-between rounded-xl bg-card-bg dark:bg-card-bg-dark px-5 py-4 mb-4">
-        <Text className="text-base text-black dark:text-white">Dark Mode</Text>
+        <Text className={`text-base ${theme.textColor}`}>Dark Mode</Text>
 
         <Pressable
           onPress={toggleTheme}
           className={`w-14 h-8 rounded-full px-1 justify-center ${
-            isDark ? 'bg-indigo-600' : 'bg-gray-300'
+            isDark ? 'bg-gray-300' : 'bg-gray-300'
           }`}
         >
           <Animated.View
@@ -87,17 +90,15 @@ const Profile = () => {
         </Pressable>
       </View>
 
-      {/* Logout Button */}
       <TouchableOpacity
+        activeOpacity={0.6}
         onPress={handleLogout}
-        className="flex-row items-center justify-between rounded-xl bg-red-50 px-5 py-4 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20"
+        className={`flex-row items-center rounded-xl px-5 py-4 ${theme.logoutButton}`}
       >
-        <View className="flex-row items-center">
-          <LogOut size={20} color="#ef4444" />
-          <Text className="text-base text-red-600 dark:text-red-500 ml-3 font-medium">
-            Log Out
-          </Text>
-        </View>
+        <LogOut size={20} color={isDark ? 'white' : 'black'} />
+        <Text className={`text-base ml-3 font-medium ${theme.textColor}`}>
+          Log Out
+        </Text>
       </TouchableOpacity>
     </View>
   );

@@ -1,3 +1,4 @@
+import { useColorScheme } from 'nativewind';
 import React, { useEffect } from 'react';
 import { View, Dimensions } from 'react-native';
 import Animated, {
@@ -6,40 +7,32 @@ import Animated, {
   withTiming,
   withRepeat,
   interpolate,
-  Easing,
 } from 'react-native-reanimated';
-import { useColorScheme } from 'nativewind';
 
-/* ---------------- GRID CONSTANTS (MATCH REAL UI) ---------------- */
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+/* ---------------- GRID CONSTANTS (MATCH WATCHLISTMOVIES) ---------------- */
 const COLUMNS = 3;
-const GAP = 8;
-const ITEM_WIDTH = Math.floor((SCREEN_WIDTH - GAP * (COLUMNS + 1)) / COLUMNS);
-const ITEM_HEIGHT = Math.round(ITEM_WIDTH * 1.5);
+const GAP = 5;
+const GRID_ITEM_WIDTH = Math.floor(
+  (SCREEN_WIDTH - GAP * (COLUMNS + 1)) / COLUMNS,
+);
+const GRID_ITEM_HEIGHT = Math.round(GRID_ITEM_WIDTH * 1.5);
 
 /* ---------------- SHIMMER BOX ---------------- */
-const SkeletonBox = ({ width, height, borderRadius = 12, style }) => {
+const SkeletonBox = ({ width, height, borderRadius = 8, style }) => {
   const shimmer = useSharedValue(0);
 
   useEffect(() => {
-    shimmer.value = withRepeat(
-      withTiming(1, {
-        duration: 2000, // slower = smoother
-        easing: Easing.inOut(Easing.ease),
-      }),
-      -1,
-      false,
-    );
+    shimmer.value = withRepeat(withTiming(1, { duration: 1500 }), -1, false);
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
     const translateX = interpolate(
       shimmer.value,
       [0, 1],
-      [-width * 1.6, width * 1.6], // long travel = no pop
+      [-width * 1.5, width * 1.5],
     );
-
     return {
       transform: [{ translateX }],
     };
@@ -58,15 +51,15 @@ const SkeletonBox = ({ width, height, borderRadius = 12, style }) => {
         style,
       ]}
     >
-      {/* SHIMMER BAND */}
       <Animated.View
         style={[
           {
             position: 'absolute',
-            width: width * 0.65,
+            top: 0,
+            left: 0,
+            width: width * 0.6,
             height: '100%',
-            opacity: 0.25,
-            backgroundColor: 'rgba(255,255,255,0.9)',
+            backgroundColor: 'rgba(255,255,255,0.12)',
             transform: [{ skewX: '-15deg' }],
           },
           animatedStyle,
@@ -78,8 +71,8 @@ const SkeletonBox = ({ width, height, borderRadius = 12, style }) => {
 
 /* ---------------- GRID SKELETON ---------------- */
 const CardsSkeleton = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme?.colorScheme === 'dark';
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
     <View className={`flex-1 ${isDark ? 'bg-black' : 'bg-white'}`}>
@@ -92,16 +85,7 @@ const CardsSkeleton = () => {
               marginTop: GAP,
             }}
           >
-            {/* Poster Skeleton */}
-            <SkeletonBox width={ITEM_WIDTH} height={ITEM_HEIGHT} />
-
-            {/* Title Skeleton */}
-            <SkeletonBox
-              width={ITEM_WIDTH * 0.85}
-              height={12}
-              borderRadius={6}
-              style={{ marginTop: 6 }}
-            />
+            <SkeletonBox width={GRID_ITEM_WIDTH} height={GRID_ITEM_HEIGHT} />
           </View>
         ))}
       </View>

@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from 'src/types/RootStackParamList';
+import Rating from '../components/Rating';
 
 // --------------------------------------
 interface SearchScreenItemsProps {
@@ -27,6 +28,7 @@ interface SearchScreenItemsProps {
     release_date: string;
     overview: string;
     poster_path: string | null;
+    vote_average: number;
   };
 }
 
@@ -48,13 +50,12 @@ export default function SearchScreen() {
   const [isPaginating, setIsPaginating] = useState(false);
 
   const theme = {
-    bg: isDark ? 'bg-black' : 'bg-white',
-    surface: isDark ? 'bg-black' : 'bg-white',
-    inputBg: isDark ? 'bg-neutral-800' : 'bg-white',
-    cardBg: isDark ? 'bg-black' : 'bg-white',
-    primaryText: isDark ? 'text-white' : 'text-neutral-900',
+    backgroundColor: isDark ? 'bg-black' : 'bg-white',
+    inputBgColor: isDark ? 'bg-neutral-800' : 'bg-white',
+    textColor: isDark ? 'text-white' : 'text-black',
     secondaryText: isDark ? 'text-neutral-400' : 'text-neutral-600',
-    icon: isDark ? '#fff' : '#000',
+    iconColor: isDark ? 'text-white' : 'text-black',
+    borderLine: isDark ? 'border-neutral-800' : 'border-neutral-200',
   };
 
   const { data, isLoading, isFetching } = useGetAllSearchMoviesQuery(
@@ -102,19 +103,24 @@ export default function SearchScreen() {
 
       return (
         <TouchableOpacity
-          className={`flex-row p-3 ${theme.cardBg}`}
+          activeOpacity={0.8}
+          className={`flex-row p-3 border-b ${theme.borderLine} ${theme.backgroundColor}`}
           onPress={() =>
             navigation.navigate('DetailsScreen', { movieId: item.id })
           }
         >
-          <Image
-            source={{ uri: poster }}
-            className="w-[96px] h-[140px] rounded-lg"
-          />
+          <View className="relative">
+            <Image
+              source={{ uri: poster }}
+              className="w-[96px] h-[140px] rounded-lg"
+            />
+
+            <Rating RatingNumber={item?.vote_average} />
+          </View>
 
           <View className="flex-1 ml-3">
             <Text
-              className={`text-[16px] font-semibold ${theme.primaryText}`}
+              className={`text-[16px] font-semibold ${theme.textColor}`}
               numberOfLines={1}
             >
               {item.title}
@@ -126,7 +132,7 @@ export default function SearchScreen() {
 
             <Text
               className={`text-xs mt-2 leading-4 ${theme.secondaryText}`}
-              numberOfLines={3}
+              numberOfLines={5}
             >
               {item.overview}
             </Text>
@@ -137,6 +143,17 @@ export default function SearchScreen() {
     [isDark],
   );
 
+  const ListFooter = () => {
+    if (!isFetching || !isPaginating) return null;
+    if (isFetching || isPaginating)
+      return (
+        <View className="my-20 items-center">
+          <ActivityIndicator size={30} color="red" />
+          <Text className="text-gray-400 text-xs mt-2">Loading more...</Text>
+        </View>
+      );
+  };
+
   return (
     <>
       <StatusBar
@@ -144,15 +161,13 @@ export default function SearchScreen() {
         backgroundColor={isDark ? '#000' : '#fff'}
       />
 
-      {/* SINGLE UNIFIED SURFACE */}
       <View
         style={{ paddingTop: insets.top }}
-        className={`flex-1 ${theme.surface}`}
+        className={`flex-1 ${theme.backgroundColor}`}
       >
-        {/* Search Bar (Part of same layout) */}
         <View className="px-4 pt-4 pb-2">
           <View
-            className={`flex-row items-center h-14 rounded-full px-4 ${theme.inputBg}`}
+            className={`flex-row items-center h-14 rounded-full px-4 ${theme.inputBgColor}`}
             style={{
               shadowColor: '#000',
               shadowOpacity: 0.12,
@@ -160,14 +175,14 @@ export default function SearchScreen() {
               elevation: 4,
             }}
           >
-            <Search size={20} color={theme.icon} />
+            <Search size={20} color={theme.iconColor} />
 
             <TextInput
               value={q}
               onChangeText={setQ}
               placeholder="Search movies, shows, actors"
               placeholderTextColor={isDark ? '#9CA3AF' : '#6B7280'}
-              className={`flex-1 ml-3 text-[15px] ${theme.primaryText}`}
+              className={`flex-1 ml-3 text-[15px] ${theme.textColor}`}
               returnKeyType="search"
               onSubmitEditing={onSubmitEditing}
             />
@@ -181,26 +196,21 @@ export default function SearchScreen() {
                   setPage(1);
                 }}
               >
-                <X size={18} color={theme.icon} />
+                <X size={18} color={theme.iconColor} />
               </TouchableOpacity>
             )}
           </View>
         </View>
 
-        {/* Results - same background, no visual break */}
         <FlatList
           data={displayData}
           renderItem={renderItem}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           onEndReached={loadMore}
+          showsVerticalScrollIndicator={false}
+          decelerationRate={0.8}
           onEndReachedThreshold={0.6}
-          ListFooterComponent={
-            isFetching || isPaginating ? (
-              <View className="py-6">
-                <ActivityIndicator size="small" color={theme.icon} />
-              </View>
-            ) : null
-          }
+          ListFooterComponent={ListFooter}
           ListEmptyComponent={
             !isLoading && !isFetching ? (
               <View className="mt-20 items-center">

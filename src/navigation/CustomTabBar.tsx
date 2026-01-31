@@ -22,7 +22,13 @@ function getDeepestRoute(state: any): string | undefined {
 function useActiveRoute() {
   return useSyncExternalStore(
     cb => navigationRef.addListener('state', cb),
-    () => getDeepestRoute(navigationRef.getRootState()),
+    () => {
+      if (navigationRef.isReady()) {
+        const state = navigationRef.getRootState();
+        return getDeepestRoute(state);
+      }
+      return undefined;
+    },
   );
 }
 

@@ -24,6 +24,7 @@ import {
 } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import Rating from '../components/Rating';
+import { useColorScheme } from 'nativewind';
 
 const LAYOUTS = {
   LIST: 'LIST',
@@ -49,6 +50,9 @@ const SeeAll = ({ route }: Props) => {
   const [items, setItems] = useState<MovieItem[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [layout, setLayout] = useState(LAYOUTS.GRID3);
+
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const {
     data: latestData,
@@ -93,6 +97,19 @@ const SeeAll = ({ route }: Props) => {
     activeError = isErrorUpcoming;
   }
 
+  // ---------------------------------------------------------------
+
+  const theme = {
+    backgroundColor: isDark ? 'bg-black' : 'bg-white',
+    textColor: isDark ? 'text-white' : 'text-black',
+    secondaryText: isDark ? 'text-neutral-400' : 'text-neutral-600',
+    borderLine: isDark ? 'border-neutral-800' : 'border-neutral-200',
+    renderListColor: isDark ? 'bg-white/40' : 'bg-black/10',
+    renderGridColor: isDark ? 'bg-white/40' : 'bg-black/10',
+  };
+
+  // ---------------------------------------------------------------
+
   useEffect(() => {
     if (!activeData) return;
 
@@ -135,6 +152,8 @@ const SeeAll = ({ route }: Props) => {
     });
   };
 
+  // ---------------------------------------------------------------
+
   const keyExtractor = (item: { id: string | number }) =>
     String(item.id ?? Math.random());
 
@@ -146,7 +165,7 @@ const SeeAll = ({ route }: Props) => {
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() => navigation.navigate('DetailsScreen', { movieId: item.id })}
-      className="px-4 py-3 border-b border-gray-700 flex-row items-start bg-black"
+      className={`px-4 py-3 border-b ${theme.borderLine} flex-row items-start ${theme.backgroundColor}`}
     >
       <View>
         <Image
@@ -159,7 +178,6 @@ const SeeAll = ({ route }: Props) => {
             width: 100,
             height: 140,
             borderRadius: 8,
-            backgroundColor: 'black',
             position: 'relative',
           }}
           resizeMode="cover"
@@ -167,15 +185,18 @@ const SeeAll = ({ route }: Props) => {
         <Rating RatingNumber={item?.vote_average ?? 0} />
       </View>
       <View className="ml-3 flex-1">
-        <Text numberOfLines={1} className="text-white text-base font-semibold">
-          {item?.title ?? item?.name ?? 'Untitled'}
+        <Text
+          numberOfLines={1}
+          className={`${theme.textColor} text-base font-semibold`}
+        >
+          {item?.title ?? 'Untitled'}
         </Text>
         <Text className="text-gray-400 text-sm mt-1">
           {DateFormatter(item?.release_date) ?? ''}
         </Text>
         <Text
           numberOfLines={5}
-          className="text-white text-xs font-semibold mt-2"
+          className={`${theme.secondaryText} text-xs font-semibold mt-2`}
         >
           {item?.overview ?? item?.name ?? 'Untitled'}
         </Text>
@@ -189,7 +210,9 @@ const SeeAll = ({ route }: Props) => {
         onPress={() =>
           navigation.navigate('DetailsScreen', { movieId: item.id })
         }
-        className={`m-2 bg-black ${numColumns === 3 ? 'flex-1' : ''}`}
+        className={`m-2 ${theme.backgroundColor} ${
+          numColumns === 3 ? 'flex-1' : ''
+        }`}
         style={numColumns === 3 ? { maxWidth: '31%' } : undefined}
       >
         <Image
@@ -202,7 +225,6 @@ const SeeAll = ({ route }: Props) => {
             width: '100%',
             height: numColumns === 3 ? 140 : 200,
             borderRadius: 8,
-            backgroundColor: '#111827',
           }}
           resizeMode="cover"
         />
@@ -210,7 +232,10 @@ const SeeAll = ({ route }: Props) => {
         <Rating RatingNumber={item?.vote_average ?? 0} />
 
         <View className="mt-2 px-1">
-          <Text className="text-white text-sm font-semibold" numberOfLines={2}>
+          <Text
+            className={`${theme.textColor} text-sm font-semibold`}
+            numberOfLines={2}
+          >
             {item?.title ?? item?.name ?? 'Untitled'}
           </Text>
           <View className="flex-row items-center justify-between mt-1">
@@ -227,7 +252,7 @@ const SeeAll = ({ route }: Props) => {
     if (!activeFetching) return null;
     return (
       <View className="my-20 items-center">
-        <ActivityIndicator size={30} color="#fff" />
+        <ActivityIndicator size={30} color="red" />
         <Text className="text-gray-400 text-xs mt-2">Loading more...</Text>
       </View>
     );
@@ -235,57 +260,68 @@ const SeeAll = ({ route }: Props) => {
 
   if (activeLoading && pageNo === 1 && items.length === 0) {
     return (
-      <View className="flex-1 bg-black items-center justify-center">
-        <ActivityIndicator size={30} color="#fff" />
-        <Text className="text-gray-300 mt-3">Loading...</Text>
+      <View
+        className={`${theme.backgroundColor} flex-1 items-center justify-center`}
+      >
+        <ActivityIndicator size={30} color="red" />
+        <Text className="text-gray-400 mt-3">Loading...</Text>
       </View>
     );
   }
 
   if (activeError && items.length === 0) {
     return (
-      <View className="flex-1 bg-black items-center justify-center px-6">
-        <Text className="text-white mb-4">Failed to load movies.</Text>
+      <View
+        className={`${theme.backgroundColor} flex-1 items-center justify-center px-6`}
+      >
+        <Text className={`${theme.textColor} mb-4`}>
+          Failed to load movies.
+        </Text>
         <Pressable
           onPress={refreshList}
-          className="bg-indigo-600 px-4 py-2 rounded"
+          className="bg-indigo-500 px-4 py-2 rounded"
         >
-          <Text className="text-white font-medium">Retry</Text>
+          <Text className={`${theme.textColor} font-medium`}>Retry</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-black">
-      <View className="px-2 py-3 border-b border-gray-800 flex-row items-center justify-between">
-        <Text className="text-white text-2xl font-bold uppercase">
+    <View className="flex-1">
+      <View
+        className={`px-2 py-3 border-b ${theme.backgroundColor} ${theme.borderLine} flex-row items-center justify-between`}
+      >
+        <Text className={`${theme.textColor} text-2xl font-bold uppercase`}>
           {title || genreName}
         </Text>
 
         <View className="flex-row items-center gap-2">
-          <Pressable
+          <TouchableOpacity
+            activeOpacity={0.5}
             onPress={() => setLayout(LAYOUTS.LIST)}
             className={`p-3 rounded ${
-              layout === LAYOUTS.LIST ? 'bg-gray-700' : 'bg-gray-900'
+              layout === LAYOUTS.LIST && theme.renderListColor
             }`}
           >
-            <LayoutList color={'white'} size={16} />
-          </Pressable>
+            <LayoutList color={isDark ? 'white' : 'black'} size={16} />
+          </TouchableOpacity>
 
-          <Pressable
+          <TouchableOpacity
+            activeOpacity={0.5}
             onPress={() => setLayout(LAYOUTS.GRID3)}
             className={`p-3 rounded ${
-              layout === LAYOUTS.GRID3 ? 'bg-gray-700' : 'bg-gray-900'
+              layout === LAYOUTS.GRID3 && theme.renderGridColor
             }`}
           >
-            <LayoutGrid color={'white'} size={16} />
-          </Pressable>
+            <LayoutGrid color={isDark ? 'white' : 'black'} size={16} />
+          </TouchableOpacity>
         </View>
       </View>
 
-      <View className="flex-1 mb-20">
+      <View className={`flex-1 mb-16 relative ${theme.backgroundColor}`}>
         <FlatList
+          showsVerticalScrollIndicator={false}
           data={items}
           keyExtractor={keyExtractor}
           renderItem={layout === LAYOUTS.LIST ? renderListItem : renderGridItem}
